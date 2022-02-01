@@ -40,7 +40,7 @@ For now, it's Windows only. However, I'm finding ways to turn the code into Pyth
 ## Future plans
  - Batch is ugly. I'd like to have the whole code in Python. But I need to find equivalents for things like ECHO, GOTO, etc. Deleting and creating new files within Python shell might run into permission problems. So it'll take a while until everything is ported over.
  - GUI. This is a biggie. I don't know shit about Python, let alone GUI. But I'm hoping I can design one using [Tkinter Designer](https://github.com/ParthJadhav/Tkinter-Designer). But I don't know how I can link actions to buttons and shit like that, so any help is appreciated, it would mean so much.
- - Similar to GUI: Make an ELI5 version. I don't just want coders and nerds using this; I want laypeople to use it. Hope I can make an easy-to-understand no-frills version.
+ - Similar to GUI: Make an ELI5 README.md. I don't just want coders and nerds using this; I want laypeople to use it. Hope I can make an easy-to-understand no-frills version.
  - Not sure if it's possible, but make an EXE version. Does anyone know if I can compile this with Ruby and Python all in one, and maybe even wayback_machine_downloader installed, so that it becomes a one-step process to download? Thanks.
 
 ## Things to keep in mind
