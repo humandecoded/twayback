@@ -21,7 +21,7 @@ For now, it's Windows only. However, I'm finding ways to turn the code into Pyth
 
 ## How to run:
 
- 1. Download
+ 1. [Download](https://github.com/Mennaruuk/twayback/releases/download/v1.0.0/twayback.zip)
  2. Extract to a folder
  3. Open that folder
  4. Double click **run.bat**
