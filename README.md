@@ -14,7 +14,9 @@ For now, it's Windows only. However, I'm finding ways to turn the code into Pyth
 
  1. Install [Python](https://www.python.org/downloads/)
  2. Install [Ruby](https://rubyinstaller.org/downloads/)
- 3. After installing Ruby, install wayback_machine_downloader by launching Command Prompt and entering the following:
+ 3. After installing Ruby, install [wayback_machine_downloader](https://github.com/hartator/wayback-machine-downloader) by launching Command Prompt and entering the following:
+
+
 `gem install wayback_machine_downloader`
 
 ## How to run:
