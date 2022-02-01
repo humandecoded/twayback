@@ -1,8 +1,8 @@
-# Twayback
+# Twayback: Download deleted Tweets from the Wayback Machine
 
 Finding and downloading deleted Tweets takes a lot of time. Thankfully, with this tool, it becomes a piece of cake!
 
-Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. It's just a .bat file that runs two Python scripts.
+Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. It's just a .bat file that runs two Python scripts. Enter your desired Twitter username, and let Twayback do the rest!
 
 For now, it's Windows only. However, I'm finding ways to turn the code into Python entirely so that it can run on Linux and Mac.
 
