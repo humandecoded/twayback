@@ -1,6 +1,5 @@
 # Twayback: Download deleted Tweets from the Wayback Machine
 
-**Download :** you can download via link below -
 <p align="center">
   <a href="https://github.com/Mennaruuk/twayback/releases/download/v1.0.0/twayback.zip"><img alt="undefined" src="https://img.shields.io/badge/Download-Here-orange?style=for-the-badge&logo=github"></a>
 </p>
