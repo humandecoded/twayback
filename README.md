@@ -1,5 +1,10 @@
 # Twayback: Download deleted Tweets from the Wayback Machine
 
+**Download :** you can download via link below -
+<p align="center">
+  <a href="https://github.com/Mennaruuk/twayback/releases/download/v1.0.0/twayback.zip"><img alt="undefined" src="https://img.shields.io/badge/Download-Here-orange?style=for-the-badge&logo=github"></a>
+</p>
+
 Finding and downloading deleted Tweets takes a lot of time. Thankfully, with this tool, it becomes a piece of cake! 🎂
 
 Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. It's just a .bat file that runs two Python scripts. Enter your desired Twitter username, and let Twayback do the rest!
