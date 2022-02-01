@@ -34,7 +34,7 @@ For now, it's Windows only. However, I'm finding ways to turn the code into Pyth
 
 ## Problems I'm aware of
 
- - Yes. The code is pretty messy. It's everywhere. But I don't even know Python. I just had an idea and a logic behind it, and scoured Stack Overflow and Reddit to get help.
+ - Yes. The code is pretty messy. It's everywhere. But I don't even know Python. I just had an idea and a logic behind it, and scoured Stack Overflow and Reddit to get help. I promise that I will clean it up and make it look nicer.
  - I know about the limit mismatch. That is, if you tell the script "Download six tweets only", it will give you like three or four, not six. I'd love help on how I can have the script get as many deleted Tweets as the limit specified by the user. But it's too complex for me.
  - When the script finishes, there are two things I want to happen that aren't happening even after I wrote them in the batch script. One is to delete the file temp6.txt. The other is to rename the file username_deleted_tweets1.txt to username_deleted_tweets.txt then go through the file and deleted the string **wayback_machine_downloader ** wherever it's found. If anyone can help me with these, I'd appreciate it so much!
 ## Future plans
