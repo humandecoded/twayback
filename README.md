@@ -40,6 +40,7 @@ For now, it's Windows only. However, I'm finding ways to turn the code into Pyth
 ## Future plans
  - Batch is ugly. I'd like to have the whole code in Python. But I need to find equivalents for things like ECHO, GOTO, etc. Deleting and creating new files within Python shell might run into permission problems. So it'll take a while until everything is ported over.
  - GUI. This is a biggie. I don't know shit about Python, let alone GUI. But I'm hoping I can design one using [Tkinter Designer](https://github.com/ParthJadhav/Tkinter-Designer). But I don't know how I can link actions to buttons and shit like that, so any help is appreciated, it would mean so much.
+ - Similar to GUI: Make an ELI5 version. I don't just want coders and nerds using this; I want laypeople to use it. Hope I can make an easy-to-understand no-frills version.
 
 ## Logic
 Program gets the username and inputs it into the [Wayback CDX server API](https://github.com/internetarchive/wayback/blob/master/wayback-cdx-server/README.md). It searches for all Tweets that have the 200 status code, since 302s most likely retweets. After that, the program sends GET requests to each URL with headers specifying the BingBot. This is so that it can accurately tell you if the Tweets in question are still up or down. It throws away all the Tweets that are online, and only keeps the ones that have a 404 status code (thus deleted). Then, it uses [wayback_machine_downloader](https://github.com/hartator/wayback-machine-downloader) by hartator to download the HTML files.
