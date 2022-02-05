@@ -54,6 +54,6 @@ For more information, check out the [Usage](#usage) section above.
 ## Future plans
  - GUI. This is a biggie. I don't know shit about Python, let alone GUI. But I'm hoping I can design one using [Tkinter Designer](https://github.com/ParthJadhav/Tkinter-Designer). But I don't know how I can link actions to buttons and shit like that, that stuff is super foreign to me, so any help is appreciated, it would mean so much.
 
-Plenty of thanks to jsvine for his amazing work with [waybackpack](https://github.com/jsvine/waybackpack). Without it, this tool cannot work nearly as well.
+Plenty of thanks to jsvine for his amazing work on [waybackpack](https://github.com/jsvine/waybackpack). Without it, this tool cannot work nearly as well.
 
 I hope you enjoy my little script. Please use it for good. Whatever you are, be a good one.
