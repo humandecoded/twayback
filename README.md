@@ -15,6 +15,12 @@ Finding and downloading deleted Tweets takes a lot of time. Thankfully, with thi
 
 Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your desired Twitter username, and let Twayback do the rest!
 
+## Requirements
+ - Python 3
+    - [Download](https://www.python.org/downloads/) 
+ - waybackpack
+    - Install: `pip install waybackpack` or `pip3 install waybackpack`
+    - [Link to repo](https://github.com/jsvine/waybackpack)
 ## Features
  - Can download some or all of a user's archived deleted Tweets.
  - Allows custom time range to narrow search for deleted Tweets archived between two dates.
