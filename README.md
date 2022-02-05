@@ -7,6 +7,7 @@
 [![windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F04%2F2022/twayback.exe)
 [![python](https://img.shields.io/badge/Download-Python-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F04%2F2022/twayback.zip)
 
+![screenshot](https://i.imgur.com/A5975fh.jpg)
 
 </div>
 
