@@ -33,8 +33,10 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
     -u, --username        Specify target user's Twitter handle
     -from, --fromdate     Narrow search for deleted Tweets *archived* on and after this date
                           (can be combined with -to)
+                          (format YYMMDD)
     -to, --todate         Narrow search for deleted Tweets *archived* on and before this date
                           (can be combined with -from)
+                          (format YYMMDD)
 
 ## Installation
 ### For Windows only
