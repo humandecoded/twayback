@@ -20,7 +20,7 @@ todate = args['todate']
 # Active, suspended, or doesn't exist?
 data1 =f"https://twitter.com/{username}"
 results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
+headers = {'user-agent':'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'}
 
 response = session.get(data1, headers=headers, allow_redirects=False)
 status_code = response.status_code
@@ -41,9 +41,18 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 
 link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&from={fromdate}&to={todate}"
 data2 = []
-
+blocklist = []
 c = session.get(link).text
 urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', c)
+blocks = re.findall(r'Blocked', c)
+
+for block in blocks:
+    blocklist.append(f"{block}") 
+    if any("Blocked" in s for s in blocklist):
+        print(f"Sorry, no deleted Tweets can be retrieved for {username}.\nThis is because the Wayback Machine excludes Tweets for this handle.")
+        exit()
+    else:
+        pass
 
 for url in urls:
     data2.append(f"{url}")
@@ -61,7 +70,7 @@ else:
 
 # Obtain status codes
 results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'}
+headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
 for url in track(data4):
     response = session.get(url, headers=headers)
