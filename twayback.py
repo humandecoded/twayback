@@ -1,4 +1,4 @@
-import requests, re, os, argparse, sys, subprocess, time, random
+import requests, re, os, argparse, sys, subprocess, time
 from requests import Session
 session = Session()
 from tqdm import tqdm
@@ -20,7 +20,7 @@ todate = args['todate']
 # Active, suspended, or doesn't exist?
 data1 =f"https://twitter.com/{username}"
 results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'}
+headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
 response = session.get(data1, headers=headers, allow_redirects=False)
 status_code = response.status_code
