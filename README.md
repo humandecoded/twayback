@@ -29,6 +29,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 ## Usage
     twayback -u USERNAME [OPTIONS]
+    Example: twayback -u jack
     
     -u, --username        Specify target user's Twitter handle
     -from, --fromdate     Narrow search for deleted Tweets *archived* on and after this date
