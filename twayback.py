@@ -41,7 +41,7 @@ link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/statu
 data2 = []
 blocklist = []
 c = session.get(link).text
-urls = re.findall('/^https?:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/', c)
+urls = re.findall('/^https?:\/\/(www.)?(mobile.)?twitter\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/gm, c)
 blocks = re.findall(r'Blocked', c)
 
 for block in blocks:
