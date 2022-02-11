@@ -102,7 +102,7 @@ else:
 
 # Obtain status codes
 results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)'}
+headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
 for url in tqdm(data3):
     response = session.get(url, headers=headers)
