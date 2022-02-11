@@ -31,7 +31,7 @@ elif status_code == 302:
     time.sleep(3)
 else:
     print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this handle's Tweets.\n")
-    time.sleep(2)
+    time.sleep(5)
 
 stuck = "(Don't worry, Twayback isn't stuck!"
 
