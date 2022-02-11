@@ -124,8 +124,8 @@ number_of_elements = len(data5)
 if number_of_elements == 1:
     answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download it? Type yes or no. Then press Enter. \n")
 elif number_of_elements == 0:
-    answer = f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n"
-    exit()
+    print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
+    sys.exit()
 else:
     answer = input(f"\n{number_of_elements} deleted Tweets have been found.\nWould you like to download them all? Type yes or no. Then press Enter. \n")
 os.system('cls')
