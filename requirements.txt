@@ -1,4 +1,4 @@
-colorama==0.4.4
-requests==2.27.1
-tqdm==4.62.3
-waybackpack==0.3.7
+colorama
+requests
+tqdm
+waybackpack
