@@ -55,8 +55,3 @@ For more information, check out the [Usage](#usage) section above.
  - This tool is best for text. You might have some luck with photos. You cannot download videos.
  - By definition, if an account is suspended or no longer exists, all their Tweets would be considered deleted.
  - Custom date range is not about when Tweets were made, but rather when they were _archived_. For example, a Tweet from 2011 may have been archived today.
-
-## Future plans
- - GUI. This is a biggie. I don't know shit about Python, let alone GUI. But I'm hoping I can design one using [Tkinter Designer](https://github.com/ParthJadhav/Tkinter-Designer). But I don't know how I can link actions to buttons and shit like that, that stuff is super foreign to me, so any help is appreciated, it would mean so much.
-
-I hope you enjoy my little script. Please use it for good. Whatever you are, be a good one.
