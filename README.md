@@ -18,6 +18,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 ## Features
  - Can download some or all of a user's archived deleted Tweets.
  - Lets you extract Tweets text to a text file (yes, even quote retweets!)
+ - Has ability to screenshot deleted Tweets.
  - Allows custom time range to narrow search for deleted Tweets archived between two dates.
  - Differentiates between accounts that are active, suspended, or don't/no longer exist.
  - Lets you know if a target handle's archived Tweets have been excluded from the Wayback Machine.
@@ -49,6 +50,17 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 
 For more information, check out the [Usage](#usage) section above.
+
+## Screenshots
+Screenshots are done using Selenium. To successfully take screenshots, please follow these steps:
+ 1. Make sure you have Chrome installed.
+    - Firefox works, but you have to edit the script to replace Chrome with Firefox. Plus, Firefox isn't great with screenshots.
+ 2. Note your Chrome version.
+ 3. Go to [this page](https://chromedriver.chromium.org/downloads) and download the appropriate Chrome driver for your version of Chrome.
+ 4. Place the Chrome driver in your Python installation directory, or add it to PATH.
+    - Add to PATH tutorials: [Windows](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), [Linux](https://itsfoss.com/add-directory-to-path-linux/), [macOS](https://www.architectryan.com/2012/10/02/add-to-the-path-on-mac-os-x-mountain-lion/).
+
+
 
 ## Things to keep in mind
  - Quality of the HTML files depends on how the Wayback Machine saved them. Some are better than others.
