@@ -154,7 +154,21 @@ elif answer.lower() == 'text':
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 elif answer.lower() == 'both':
-    for url in tqdm(data5, position=0, leave=True):
+    textlist = []
+    textonly = []
+    for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
+        response2 = session.get(url).text
+        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
+        textonly.append(tweet)
+    textlist = zip(data5, textonly)
+    directory = pathlib.Path(username)
+    directory.mkdir(exist_ok=True)
+    with open(f"{username}/{username}_text.txt", 'w') as file:
+        for text in textlist:
+            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
+    print("Text file has been successfully saved!\nNow downloading pages.")
+    time.sleep(1)
+    for url in tqdm(data5, position=0, leave=True, desc="Downloading HTML pages..."):
         link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
         response = requests.get(link)
         jsonResponse = response.json()
@@ -166,19 +180,9 @@ elif answer.lower() == 'both':
         for id in twitter_id:
             with open(f"{username}/{id}.html", 'wb') as file:
                 file.write(r.content)
-    textlist = []
-    textonly = []
-    for url in tqdm(wayback, position=0, leave=True):
-        response2 = session.get(url).text
-        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
-        textonly.append(tweet)
-    textlist = zip(data5, textonly)
-    directory = pathlib.Path(username)
-    directory.mkdir(exist_ok=True)
-    with open(f"{username}/{username}_text.txt", 'w') as file:
-        for text in textlist:
-            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
-    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
+    print("HTML pages have been successfully saved!")
+    time.sleep(2)
+    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nHTML pages have also been downloaded.\nYou can find everything inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 else:
