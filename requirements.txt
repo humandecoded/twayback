@@ -1,4 +1,7 @@
+beautifulsoup4
 colorama
+lxml
 requests
+selenium
+simplejson
 tqdm
-waybackpack
