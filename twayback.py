@@ -1,10 +1,13 @@
-import requests, re, os, argparse, sys, waybackpack, time, subprocess
+import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time
+from pathlib import Path
 from requests import Session
 session = Session()
+import simplejson as json
 from tqdm import tqdm
 import colorama
 from colorama import  Fore, Back, Style
 colorama.init(autoreset=True)
+from bs4 import BeautifulSoup
 os.system('cls')
 
 parser = argparse.ArgumentParser()
@@ -44,6 +47,7 @@ data2 = []
 
 c = session.get(link).text
 urls = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
+# Is Twitter handle excluded by the Wayback Machine?
 blocklist = []
 blocks = re.findall(r'Blocked', c)
 for block in blocks:
@@ -54,44 +58,11 @@ for block in blocks:
     else:
         pass
 
-username_character_count = len(username)
-if username_character_count == 1:
-    data2 = [g for g in data2 if len(str(g)) <= 48]
-elif username_character_count == 2:
-    data2 = [g for g in data2 if len(str(g)) <= 49]
-elif username_character_count == 3:
-    data2 = [g for g in data2 if len(str(g)) <= 50]
-elif username_character_count == 4:
-    data2 = [g for g in data2 if len(str(g)) <= 51]
-elif username_character_count == 5:
-    data2 = [g for g in data2 if len(str(g)) <= 52]
-elif username_character_count == 6:
-    data2 = [g for g in data2 if len(str(g)) <= 53]
-elif username_character_count == 7:
-    data2 = [g for g in data2 if len(str(g)) <= 54]
-elif username_character_count == 8:
-    data2 = [g for g in data2 if len(str(g)) <= 55]
-elif username_character_count == 9:
-    data2 = [g for g in data2 if len(str(g)) <= 56]
-elif username_character_count == 10:
-    data2 = [g for g in data2 if len(str(g)) <= 57]
-elif username_character_count == 11:
-    data2 = [g for g in data2 if len(str(g)) <= 58]
-elif username_character_count == 12:
-    data2 = [g for g in data2 if len(str(g)) <= 59]
-elif username_character_count == 13:
-    data2 = [g for g in data2 if len(str(g)) <= 60]
-elif username_character_count == 14:
-    data2 = [g for g in data2 if len(str(g)) <= 61]
-elif username_character_count == 15:
-    data2 = [g for g in data2 if len(str(g)) <= 62]
-else:
-    pass
- 
+# Attach all archived Tweet links to data2
 for url in urls:
     data2.append(f"{url}")
-    
-# Remove duplicate URLs
+
+# Remove duplicate links
 data3 = list(set(data2))
 
 number_of_elements = len(data3)
@@ -117,27 +88,97 @@ for url, status_code in results:
 data4 = [g for g in data3 if " 404" in g]
 data5 = [g.replace(' 404', '') for g in data4]
 
+#for url in data5:
+#    response = session.get(url)
+#    soup = bs4.BeautifulSoup(response.content, "lxml")
+#    data5 = [s for s in x if print(soup.find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).text) != 'None']
+    
+twitter_id = [item.split("status/", 1)[1] for item in data5]
+try:
+    twitter_id = [item.split("statuses/", 1)[1] for item in data5]
+except IndexError:
+    pass
+
+wayback = []
+for url in data5:
+    link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
+    response1 = session.get(link)
+    jsonResponse = response1.json()
+    wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
+    wayback.append(wayback_url)
+
 os.system('cls')
 
 number_of_elements = len(data5)
 
 if number_of_elements == 1:
-    answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download it? Type yes or no. Then press Enter. \n")
+    answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download the Tweets, or get their text only? Type 'download' or 'text' or 'both'. Then press Enter. \n")
 elif number_of_elements == 0:
     print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
     sys.exit()
 else:
-    answer = input(f"\n{number_of_elements} deleted Tweets have been found.\nWould you like to download them all? Type yes or no. Then press Enter. \n")
+    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, or get their text only? Type 'download' or 'text' or 'both'. Then press Enter. \n")
 os.system('cls')
-# Use waybackpack to download URLs
-if answer.lower() == 'yes':
+# Actual downloading occurs here
+# For some reason, I get connection is aborted error when I use session, so I switched to requests instead for downloading
+if answer.lower() == 'download':
     for url in tqdm(data5, position=0, leave=True):
-        subprocess.run(f"waybackpack -d {username}  --uniques-only --raw {url}", text=True, capture_output=True)
-        with open(f'{username}/{username}.txt', 'w') as file:
-            for row in data5:
-                s = "".join(map(str, row))
-                file.write(s+'\n')
-    print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\nAlso, a text file ({username}.txt) is saved, which lists all URLs for the deleted Tweets.")
+        link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
+        response = requests.get(link)
+        jsonResponse = response.json()
+        wayback_url = [(jsonResponse['archived_snapshots']['closest']['url'])]
+        wayback_url = (','.join(wayback_url))
+        r = requests.get(wayback_url)
+        directory = pathlib.Path(username)
+        directory.mkdir(exist_ok=True)
+        for id in twitter_id:
+            with open(f"{username}/{id}.html", 'wb') as file:
+                file.write(r.content)
+    print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
+    time.sleep(1)
+    print(f"Have a great day! Thanks for using Twayback :)")
+elif answer.lower() == 'text':
+    textlist = []
+    textonly = []
+    for url in tqdm(wayback, position=0, leave=True):
+        response2 = session.get(url).text
+        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
+        textonly.append(tweet)
+    textlist = zip(data5, textonly)
+    directory = pathlib.Path(username)
+    directory.mkdir(exist_ok=True)
+    with open(f"{username}/{username}_text.txt", 'w') as file:
+        for text in textlist:
+            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
+    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
+    time.sleep(1)
+    print(f"Have a great day! Thanks for using Twayback :)")
+elif answer.lower() == 'both':
+    for url in tqdm(data5, position=0, leave=True):
+        link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
+        response = requests.get(link)
+        jsonResponse = response.json()
+        wayback_url = [(jsonResponse['archived_snapshots']['closest']['url'])]
+        wayback_url = (','.join(wayback_url))
+        r = requests.get(wayback_url)
+        directory = pathlib.Path(username)
+        directory.mkdir(exist_ok=True)
+        for id in twitter_id:
+            with open(f"{username}/{id}.html", 'wb') as file:
+                file.write(r.content)
+    textlist = []
+    textonly = []
+    for url in tqdm(wayback, position=0, leave=True):
+        response2 = session.get(url).text
+        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
+        textonly.append(tweet)
+    textlist = zip(data5, textonly)
+    directory = pathlib.Path(username)
+    directory.mkdir(exist_ok=True)
+    with open(f"{username}/{username}_text.txt", 'w') as file:
+        for text in textlist:
+            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
+    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 else:
