@@ -8,6 +8,9 @@ import colorama
 from colorama import  Fore, Back, Style
 colorama.init(autoreset=True)
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 os.system('cls')
 
 parser = argparse.ArgumentParser()
@@ -92,13 +95,16 @@ data5 = [g.replace(' 404', '') for g in data4]
 #    response = session.get(url)
 #    soup = bs4.BeautifulSoup(response.content, "lxml")
 #    data5 = [s for s in x if print(soup.find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).text) != 'None']
-    
-twitter_id = [item.split("status/", 1)[1] for item in data5]
-try:
-    twitter_id = [item.split("statuses/", 1)[1] for item in data5]
-except IndexError:
-    pass
 
+twitter_id = []
+for item in data5:
+    twitter_id = [item.split("status/", 1)[1] for item in data5]
+    try:
+        twitter_id = [item.split("statuses/", 1)[1] for item in data5]
+    except IndexError:
+        pass
+
+# List of Wayback Machine URLs to use for 'download', 'text', and 'both'. NOT 'screenshot'.
 wayback = []
 for url in data5:
     link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
@@ -107,17 +113,27 @@ for url in data5:
     wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
     wayback.append(wayback_url)
 
+# List of Wayback Machine URLs to use for' screenshot' ONLY.
+wayback_screenshot = []
+for url in data5:
+    link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
+    response1 = session.get(link)
+    jsonResponse = response1.json()
+    wayback_url_screenshot = (jsonResponse['archived_snapshots']['closest']['url'])
+    wayback_screenshot.append(wayback_url_screenshot)
+    wayback_screenshot= [g[:41] + 'if_' + g[41:] for g in wayback_screenshot]
+
 os.system('cls')
 
 number_of_elements = len(data5)
 
 if number_of_elements == 1:
-    answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download the Tweets, or get their text only? Type 'download' or 'text' or 'both'. Then press Enter. \n")
+    answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download the Tweet,\nget its text only, both, or take a screenshot?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
 elif number_of_elements == 0:
     print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
     sys.exit()
 else:
-    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, or get their text only? Type 'download' or 'text' or 'both'. Then press Enter. \n")
+    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both'. Then press Enter. \n")
 os.system('cls')
 # Actual downloading occurs here
 # For some reason, I get connection is aborted error when I use session, so I switched to requests instead for downloading
@@ -183,6 +199,28 @@ elif answer.lower() == 'both':
     print("HTML pages have been successfully saved!")
     time.sleep(2)
     print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nHTML pages have also been downloaded.\nYou can find everything inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
+    time.sleep(1)
+    print(f"Have a great day! Thanks for using Twayback :)")
+elif answer.lower() == "screenshot":
+    print('Taking screenshots...')
+    time.sleep(2)
+    print("This might take a long time depending on your Internet speed\nand number of Tweets to screenshot.")
+    for url, number in zip(wayback_screenshot, twitter_id):
+        directory = pathlib.Path(username)
+        directory.mkdir(exist_ok=True)
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--log-level=1')
+        chrome = webdriver.Chrome(options=options)
+        chrome.get(url)
+        image = chrome.find_element(By.XPATH, "//*[@id='permalink-overlay-dialog']/div[3]/div/div/div[1]")
+        for numbers in twitter_id:
+            image.screenshot(f"{username}/{number}.png")
+    print("Screenshots have been successfully saved!")
+    time.sleep(2)
+    print(f"\nYou can find screenshots inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 else:
