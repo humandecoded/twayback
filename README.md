@@ -45,7 +45,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  2. Extract ZIP file to a directory of your choice.
  3. Open terminal in that directory.
  4. Run the command `pip install -r requirements.txt`.
- 5. Run the command `twayback -u USERNAME` (Replace `USERNAME` with your target handle).
+ 5. Run the command `twayback.py -u USERNAME` (Replace `USERNAME` with your target handle).
 
 
 For more information, check out the [Usage](#usage) section above.
