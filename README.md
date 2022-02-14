@@ -2,11 +2,9 @@
 
 <div align="center">
   
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+[![windows](https://img.shields.io/badge/Download-Twayback%20New%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](hhttps://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
   
-[![windows](https://img.shields.io/badge/Download-Windows%20Binary-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20Script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.zip)
-
 ![screenshot](https://i.imgur.com/oBeqt6V.png)
 
 </div>
@@ -51,6 +49,26 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 For more information, check out the [Usage](#usage) section above.
 
+## Twayback New vs Twayback Old
+Currently, there are two versions of Twayback:
+
+  - Twayack New's pros: faster, no need to check status codes.
+  - Twayback New's cons: limit of ~3,200 Tweets. This means you will have false positives if the Twitter user currently has more than ~3,200 Tweets up.
+    - Can be bypassed by doing iterations of 3,000 Tweets each until there are no more Tweets left. Planned for future.
+  - Twayback Old's pros: no ~3,200 Tweets limit.
+  - Twayback New's cons: slower, requires status code checking.
+
+<div align="center">
+
+If you're interested in Twayback Old, download links are below:
+
+
+[![windows](https://img.shields.io/badge/Download-Twayback%20Old-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback_old.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_old.zip)
+  
+
+</div>
+
 ## Screenshots
 Screenshots are done using Selenium. To successfully take screenshots, please follow these steps:
  1. Make sure you have Chrome installed.
@@ -68,16 +86,8 @@ Screenshots are done using Selenium. To successfully take screenshots, please fo
  - By definition, if an account is suspended or no longer exists, all their Tweets would be considered deleted.
  - Custom date range is not about when Tweets were made, but rather when they were _archived_. For example, a Tweet from 2011 may have been archived today.
 
-## Future plans
- - Create two versions: one version to be recommended to most users, another version for power users.
-  - Version A's pros: faster, no need to check status codes.
-  - Version A's cons: limit of ~3,200 Tweets. This means you will have false positives if the Twitter user currently has more than ~3,200 Tweets up.
-    - Can be bypassed by doing iterations of 3,000 Tweets each until there are no more Tweets left.
-  - Version B's pros: no ~3,200 Tweets limit.
-  - Version B's cons: slower, requires status code checking.
-
 ## Call for help 🙏
 I welcome, and encourage, contributions! They make my day.
 What I can think of off the top of my head:
  - **Code simplification/improvement**: If you're a pro at Python and know better ways to do what's in the script, please feel free to do so! If it works well, if not better, I will most likely merge it 😃
- - **async/await**: This one is badly needed. I'm trying to create another version of the script that doesn't check the status code of every archived URL. Rather, it gets the list of archived URLs from the Wayback Machine, gets the list of online URLs from the Twitter profile, subtracts both, and splits the Twitter URLs to get their IDs to serve as filenames. All of this can be pretty slow without async/await. I tried implementing it, but I suck at it, and I don't know where to put what. Multi threading and multiprocessing are also good.
+ - **async/await**: This one is badly needed. I'm trying to create another version of the script that doesn't check the status code of every archived URL. Rather, it gets the list of archived URLs from the Wayback Machine, gets the list of online URLs from the Twitter profile, subtracts both, and splits the Twitter URLs to get their IDs to serve as filenames. All of this can be pretty slow without async/await. I tried implementing it, but I suck at it, and I don't know where to put what. Multithreading and multiprocessing are also good.
