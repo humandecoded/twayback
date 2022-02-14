@@ -67,3 +67,17 @@ Screenshots are done using Selenium. To successfully take screenshots, please fo
  - This tool is best for text. You might have some luck with photos. You cannot download videos.
  - By definition, if an account is suspended or no longer exists, all their Tweets would be considered deleted.
  - Custom date range is not about when Tweets were made, but rather when they were _archived_. For example, a Tweet from 2011 may have been archived today.
+
+## Future plans
+ - Create two versions: one version to be recommended to most users, another version for power users.
+  - Version A's pros: faster, no need to check status codes.
+  - Version A's cons: limit of ~3,200 Tweets. This means you will have false positives.
+    - Can be bypassed by doing iterations of 3,000 Tweets each until there are no more Tweets left.
+  - Version B's pros: able to get all archived deleted URLs.
+  - Version B's cons: slower, requires status code checking.
+
+## Call for help 🙏
+I welcome, and encourage, contributions! They make my day.
+What I can think of off the top of my head:
+ - **Code simplification/improvement**: If you're a pro at Python and know better ways to do what's in the script, please feel free to do so! If it works well, if not better, I will most likely merge it 😃
+ - **async/await**: This one is badly needed. I'm trying to create another version of the script that doesn't check the status code of every archived URL. Rather, it gets the list of archived URLs from the Wayback Machine, gets the list of online URLs from the Twitter profile, subtracts both, and splits the Twitter URLs to get their IDs to serve as filenames. All of this can be pretty slow without async/await. I tried implementing it, but I suck at it, and I don't know where to put what.
