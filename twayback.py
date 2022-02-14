@@ -133,7 +133,7 @@ elif number_of_elements == 0:
     print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
     sys.exit()
 else:
-    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both'. Then press Enter. \n")
+    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
 os.system('cls')
 # Actual downloading occurs here
 # For some reason, I get connection is aborted error when I use session, so I switched to requests instead for downloading
