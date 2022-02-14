@@ -54,12 +54,12 @@ Currently, there are two versions of Twayback:
 
 ## Installation
 ### For Windows only
- 1. [Download the latest EXE file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
+ 1. Download the latest EXE file.
  2. Launch Command Prompt in the EXE file's directory.
  3. Run the command `twayback -u USERNAME` (Replace `USERNAME` with your target handle).
 
 ### For Windows, Linux, and macOS
- 1. [Download the latest ZIP file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
+ 1. Download the latest Python script ZIP file.
  2. Extract ZIP file to a directory of your choice.
  3. Open terminal in that directory.
  4. Run the command `pip install -r requirements.txt`.
