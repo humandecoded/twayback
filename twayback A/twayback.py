@@ -67,7 +67,7 @@ for block in blocks:
 active_tweets = []
 
 def userTweets(user=''):
-    for i, tweet in enumerate(twitter.TwitterSearchScraper('from:' +user+ ' lang:"en" ').get_items()):
+    for i, tweet in enumerate(twitter.TwitterSearchScraper('from:' +user).get_items()):
         active_tweets.append(tweet.url)
 
 userTweets(username)
@@ -82,54 +82,28 @@ c = session.get(link).text
 r = re.compile(r"\b[0-9]{14}\b")
 numbers = r.findall(c)
 tweeties = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
-class WaybackIDAppending:
-    def wida(self):
-        global wayback_id
-        wayback_id = []
-        for number in numbers:
-            wayback_id.append(number)
-    def __init__(self):
-        t = threading.Thread(target=self.wida)
-        t.start()
 
-class TweetGettingAndIDSplitting:
-    def tgaids(self):
-        global twitter_url
-        twitter_url = []
-        for tweety in tweeties:
-            twitter_url.append(tweety)
-    def __init__(self):
-        t = threading.Thread(target=self.tgaids)
-        t.start()
+wayback_id = []
+for number in numbers:
+    wayback_id.append(number)
 
-class ZippingAndUnzipping:
-    def zau(self):
-        global wayback_id
-        global twitter_url
-        wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y not in active_tweets]
-        wayback_id = [x[0] for x in wayback_id_twitter_url]
-        twitter_url = [x[1] for x in wayback_id_twitter_url]
-    def __init__(self):
-        t = threading.Thread(target=self.zau)
-        t.start()
 
-class CreateWaybackURL:
-    def cwu(self):
-        for number, tweety in zip(wayback_id, twitter_url):
-            long_url.append(f"https://web.archive.org/web/{number}/{tweety}")
-    def __init__(self):
-        t = threading.Thread(target=self.cwu)
-        t.start()
+twitter_url = []
+for tweety in tweeties:
+    twitter_url.append(tweety)
+print(active_tweets)
+time.sleep(20)
+wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y not in active_tweets]
+wayback_id = [x[0] for x in wayback_id_twitter_url]
+twitter_url = [x[1] for x in wayback_id_twitter_url]
 
-class SplitTwitterID:
-    def sti(self):
-        for url in twitter_url:
-            regex = re.search(r"\b(\d{12,19})\b", url)
-            if regex:
-                twitter_id.append(regex.group())
-    def __init__(self):
-        t = threading.Thread(target=self.sti)
-        t.start()
+for number, tweety in zip(wayback_id, twitter_url):
+    long_url.append(f"https://web.archive.org/web/{number}/{tweety}")
+    
+for url in twitter_url:
+    regex = re.search(r"\b(\d{12,19})\b", url)
+    if regex:
+        twitter_id.append(regex.group())
 
 class Download:
     def download(self):
@@ -234,12 +208,6 @@ class Screenshot:
     def __init__(self):
         t = threading.Thread(target=self.screenshot)
         t.start()
-
-WaybackIDAppending()
-TweetGettingAndIDSplitting()
-ZippingAndUnzipping()
-CreateWaybackURL()
-SplitTwitterID()
 
 # List of Wayback Machine URLs to use for 'screenshot' ONLY.
 wayback_screenshot = [a[:42] + 'if_' + a[42:] for a in long_url]
