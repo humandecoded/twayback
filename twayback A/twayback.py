@@ -179,8 +179,11 @@ class Both:
         for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
             response2 = session.get(url).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-            textonly.append(tweet)
+            try:
+                tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
+                textonly.append(tweet)
+            except AttributeError:
+                pass
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
