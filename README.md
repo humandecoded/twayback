@@ -54,7 +54,6 @@ Currently, there are two versions of Twayback:
 
   - Twayack New's pros: faster, no need to check status codes.
   - Twayback New's cons: limit of ~3,200 Tweets. This means you will have false positives if the Twitter user currently has more than ~3,200 Tweets up.
-    - Can be bypassed by doing iterations of 3,000 Tweets each until there are no more Tweets left. Planned for future.
   - Twayback Old's pros: no ~3,200 Tweets limit.
   - Twayback New's cons: slower, requires status code checking.
 
