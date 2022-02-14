@@ -3,7 +3,7 @@
 <div align="center">
   
 [![windows](https://img.shields.io/badge/Download-Twayback%20New%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](hhttps://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
   
 ![screenshot](https://i.imgur.com/oBeqt6V.png)
 
@@ -40,7 +40,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  3. Run the command `twayback -u USERNAME` (Replace `USERNAME` with your target handle).
 
 ### For Windows, Linux, and macOS
- 1. [Download the latest ZIP file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.zip)
+ 1. [Download the latest ZIP file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
  2. Extract ZIP file to a directory of your choice.
  3. Open terminal in that directory.
  4. Run the command `pip install -r requirements.txt`.
