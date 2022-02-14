@@ -4,5 +4,5 @@ lxml
 requests
 selenium
 simplejson
-snscrape
+git+https://github.com/JustAnotherArchivist/snscrape.git
 tqdm
