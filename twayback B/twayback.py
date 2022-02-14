@@ -15,7 +15,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-os.system('cls')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -127,7 +126,6 @@ for url in data5:
     wayback_screenshot.append(wayback_url_screenshot)
     wayback_screenshot= [g[:41] + 'if_' + g[41:] for g in wayback_screenshot]
 
-os.system('cls')
 
 number_of_elements = len(data5)
 
@@ -138,7 +136,7 @@ elif number_of_elements == 0:
     sys.exit()
 else:
     answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
-os.system('cls')
+
 # Actual downloading occurs here
 # For some reason, I get connection is aborted error when I use session, so I switched to requests instead for downloading
 if answer.lower() == 'download':
