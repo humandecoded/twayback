@@ -1,0 +1,8 @@
+beautifulsoup4
+colorama
+lxml
+requests
+selenium
+simplejson
+snscrape
+tqdm
