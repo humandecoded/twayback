@@ -73,7 +73,7 @@ Screenshots are done using Selenium. To successfully take screenshots, please fo
   - Version A's pros: faster, no need to check status codes.
   - Version A's cons: limit of ~3,200 Tweets. This means you will have false positives if the Twitter user currently has more than ~3,200 Tweets up.
     - Can be bypassed by doing iterations of 3,000 Tweets each until there are no more Tweets left.
-  - Version B's pros: able to get all archived deleted URLs.
+  - Version B's pros: no ~3,200 Tweets limit.
   - Version B's cons: slower, requires status code checking.
 
 ## Call for help 🙏
