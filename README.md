@@ -34,7 +34,7 @@ Currently, there are two versions of Twayback:
 
   - Twayack A's pros: **faster**, no need to check status codes.
   - Twayback A's cons: **it does not work on Twitter accounts that currently have more than 3,200 Tweets.** [Known limitation.](https://twittercommunity.com/t/tweet-limit-at-3200/156391)
-    - However, if account has fewer than 3,200 Tweeets, Twayback A can download all their deleted archived Tweets.
+    - However, if account has fewer than 3,200 Tweets, Twayback A can download all their deleted archived Tweets.
 <div align="center">
   
 [![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
