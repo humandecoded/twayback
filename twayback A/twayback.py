@@ -49,7 +49,7 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 
 print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
-link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&from={fromdate}&to={todate}"
+link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
 c = session.get(link).text
 
 # Is Twitter handle excluded by the Wayback Machine?
@@ -181,7 +181,7 @@ class Both:
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
             try:
                 tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-                textonly.append(tweet)
+                textonly.append(tweet + "\n\n---")
             except AttributeError:
                 pass
         textlist = zip(twitter_url, textonly)
@@ -260,11 +260,17 @@ else:
 # Actual downloading occurs here
 if answer.lower() == 'download':
     Download()
+if answer.lower() == 'downlaod':
+    Download()
 elif answer.lower() == 'text':
+    Text()
+elif answer.lower() == 'txt':
     Text()
 elif answer.lower() == 'both':
     Both()
 elif answer.lower() == "screenshot":
+    Screenshot()
+elif answer.lower() == "screnshot":
     Screenshot()
 else:
     print("Goodbye!")
