@@ -63,7 +63,7 @@ Currently, there are two versions of Twayback:
 If you're interested in Twayback Old, download links are below:
 
 
-[![windows](https://img.shields.io/badge/Download-Twayback%20Old-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback_old.exe)
+[![windows](https://img.shields.io/badge/Download-Twayback%20Old-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_old.exe)
 [![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_old.zip)
   
 
