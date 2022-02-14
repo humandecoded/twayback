@@ -154,8 +154,11 @@ class Text:
         for url in tqdm(wayback, position=0, leave=True):
             response2 = session.get(url).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-            textonly.append(tweet)
+            try:
+                tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
+                textonly.append(tweet + "\n\n---")
+            except AttributeError:
+                pass
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
@@ -238,6 +241,7 @@ SplitTwitterID()
 # List of Wayback Machine URLs to use for 'screenshot' ONLY.
 wayback_screenshot = [a[:42] + 'if_' + a[42:] for a in long_url]
 # List of Wayback Machine URLs to use for 'download', 'text', and 'both'. NOT 'screenshot'.
+long_url = list(set(long_url))
 wayback = long_url
 
 number_of_elements = len(twitter_url)
@@ -248,7 +252,7 @@ elif number_of_elements == 0:
     print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
     sys.exit()
 else:
-    answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
+    answer = input(f"\nAbout {number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
 
 # Actual downloading occurs here
 if answer.lower() == 'download':
