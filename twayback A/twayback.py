@@ -15,7 +15,6 @@ import snscrape.modules.twitter as twitter
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-os.system('cls')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -235,7 +234,7 @@ wayback_screenshot = [a[:42] + 'if_' + a[42:] for a in long_url]
 # List of Wayback Machine URLs to use for 'download', 'text', and 'both'. NOT 'screenshot'.
 wayback = long_url
 
-os.system('cls')
+
 
 number_of_elements = len(twitter_url)
 
@@ -246,7 +245,7 @@ elif number_of_elements == 0:
     sys.exit()
 else:
     answer = input(f"\n{number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
-os.system('cls')
+
 # Actual downloading occurs here
 if answer.lower() == 'download':
     Download()
