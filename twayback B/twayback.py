@@ -1,5 +1,5 @@
 # This is Twayback B.
-# This version is recommended if you want to download all deleted Tweets of an account that currently has >3,200 active Tweets. It requires status checking of archive links.
+# This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
 
 import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time, threading
 from pathlib import Path
@@ -142,12 +142,27 @@ class ScreenshotURLs:
         t = threading.Thread(target=self.surls)
         t.start()
 
+class NonScreenshotURLs:
+    def nsurls(self):
+        global data5
+        global wayback
+        for url in data5:
+            link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
+            response1 = session.get(link)
+            jsonResponse = response1.json()
+            wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
+            wayback.append(wayback_url)
+    def __init__(self):
+        t = threading.Thread(target=self.nsurls)
+        t.start()
+        
 DeletedTweetsOnly()
 SplitTwitterID()
+NonScreenshotURLs()
 
 class Download:
     def download(self):
-        for url in tqdm(data5, position=0, leave=True):
+        for url in tqdm(wayback, position=0, leave=True):
             r = requests.get(url)
             directory = pathlib.Path(username)
             directory.mkdir(exist_ok=True)
@@ -206,7 +221,7 @@ class Both:
                 file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
         print("Text file has been successfully saved!\nNow downloading pages.")
         time.sleep(1)
-        for url in tqdm(data5, position=0, leave=True, desc="Downloading HTML pages..."):
+        for url in tqdm(wayback, position=0, leave=True, desc="Downloading HTML pages..."):
             r = requests.get(url)
             directory = pathlib.Path(username)
             directory.mkdir(exist_ok=True)
@@ -262,17 +277,12 @@ else:
 # Actual downloading occurs here
 if answer.lower() == 'download':
     Download()
-if answer.lower() == 'downlaod':
-    Download()
 elif answer.lower() == 'text':
-    Text()
-elif answer.lower() == 'txt':
     Text()
 elif answer.lower() == 'both':
     Both()
 elif answer.lower() == "screenshot":
-    Screenshot()
-elif answer.lower() == "screnshot":
+    ScreenshotURLs()
     Screenshot()
 else:
     print("Goodbye!")
