@@ -2,9 +2,6 @@
 
 <div align="center">
   
-[![windows](https://img.shields.io/badge/Download-Twayback%20New%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
-  
 ![screenshot](https://i.imgur.com/oBeqt6V.png)
 
 </div>
@@ -35,7 +32,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 ## Installation
 ### For Windows only
- 1. [Download the latest EXE file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
+ 1. [Download the latest EXE file.](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
  2. Launch Command Prompt in the EXE file's directory.
  3. Run the command `twayback -u USERNAME` (Replace `USERNAME` with your target handle).
 
@@ -49,23 +46,27 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 For more information, check out the [Usage](#usage) section above.
 
-## Twayback New vs Twayback Old
+## Twayback A vs Twayback B
 Currently, there are two versions of Twayback:
 
-  - Twayack New's pros: faster, no need to check status codes.
-  - Twayback New's cons: limit of ~3,200 Tweets. This means you will have false positives if the Twitter user currently has more than ~3,200 Tweets up.
-  - Twayback Old's pros: no ~3,200 Tweets limit.
-  - Twayback New's cons: slower, requires status code checking.
+  - Twayack A's pros: **faster**, no need to check status codes.
+  - Twayback A's cons: **it does not work on Twitter accounts that currently have more than 3,200 Tweets.** [Known limitation.](https://twittercommunity.com/t/tweet-limit-at-3200/156391)
+  
+<div align="center">
+  
+[![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F13%2F2022/twayback.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
+  
+</div>
+
+  - Twayback B's pros: no ~3,200 Tweets limit, so it **can download all deleted archived Tweets**.
+  - Twayback B's cons: slower, requires status code checking.
 
 <div align="center">
 
-If you're interested in Twayback Old, download links are below:
-
-
-[![windows](https://img.shields.io/badge/Download-Twayback%20Old-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_old.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_old.zip)
+[![windows](https://img.shields.io/badge/Download-Twayback%20B%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.zip)
   
-
 </div>
 
 ## Screenshots
