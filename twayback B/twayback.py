@@ -1,3 +1,7 @@
+# This is Twayback B.
+# This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
+# Likely in the future, Twayback A will also be able to download all deleted Tweets. For now, though, you can use Twayback B.
+
 import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time
 from pathlib import Path
 from requests import Session
