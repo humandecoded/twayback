@@ -29,6 +29,28 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
     -to, --todate         Narrow search for deleted Tweets *archived* on and before this date
                           (can be combined with -from)
                           (format YYMMDD)
+## Twayback A vs Twayback B
+Currently, there are two versions of Twayback:
+
+  - Twayack A's pros: **faster**, no need to check status codes.
+  - Twayback A's cons: **it does not work on Twitter accounts that currently have more than 3,200 Tweets.** [Known limitation.](https://twittercommunity.com/t/tweet-limit-at-3200/156391)
+    - However, if account has fewer than 3,200 Tweeets, Twayback A can download all their deleted archived Tweets.
+<div align="center">
+  
+[![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
+  
+</div>
+
+  - Twayback B's pros: no ~3,200 Tweets limit, so it can download all deleted archived Tweets **regardless of how many active Tweets the account has**.
+  - Twayback B's cons: slower, requires status code checking.
+
+<div align="center">
+
+[![windows](https://img.shields.io/badge/Download-Twayback%20B%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.zip)
+  
+</div>
 
 ## Installation
 ### For Windows only
@@ -45,29 +67,6 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 
 For more information, check out the [Usage](#usage) section above.
-
-## Twayback A vs Twayback B
-Currently, there are two versions of Twayback:
-
-  - Twayack A's pros: **faster**, no need to check status codes.
-  - Twayback A's cons: **it does not work on Twitter accounts that currently have more than 3,200 Tweets.** [Known limitation.](https://twittercommunity.com/t/tweet-limit-at-3200/156391)
-  
-<div align="center">
-  
-[![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
-  
-</div>
-
-  - Twayback B's pros: no ~3,200 Tweets limit, so it **can download all deleted archived Tweets**.
-  - Twayback B's cons: slower, requires status code checking.
-
-<div align="center">
-
-[![windows](https://img.shields.io/badge/Download-Twayback%20B%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.zip)
-  
-</div>
 
 ## Screenshots
 Screenshots are done using Selenium. To successfully take screenshots, please follow these steps:
