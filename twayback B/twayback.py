@@ -262,12 +262,17 @@ else:
 # Actual downloading occurs here
 if answer.lower() == 'download':
     Download()
+if answer.lower() == 'downlaod':
+    Download()
 elif answer.lower() == 'text':
+    Text()
+elif answer.lower() == 'txt':
     Text()
 elif answer.lower() == 'both':
     Both()
 elif answer.lower() == "screenshot":
-    ScreenshotURLs()
+    Screenshot()
+elif answer.lower() == "screnshot":
     Screenshot()
 else:
     print("Goodbye!")
