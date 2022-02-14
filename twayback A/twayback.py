@@ -1,5 +1,6 @@
-# This is Twayback New.
+# This is Twayback A.
 # This version is recommended for speed. It does not require status checking of archive links.
+# Use Twayback B if the Twitter handle currently has more than 3,200 active Tweets.
 
 import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time, threading
 from pathlib import Path
@@ -48,7 +49,6 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 
 print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
-
 link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&from={fromdate}&to={todate}"
 c = session.get(link).text
 
@@ -72,10 +72,10 @@ def userTweets(user=''):
 
 userTweets(username)
 
-twitter_url = []
+
 long_url = []
 twitter_id = []
-wayback_id = []
+
 wayback_screenshot = []
 
 c = session.get(link).text
@@ -84,6 +84,8 @@ numbers = r.findall(c)
 tweeties = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
 class WaybackIDAppending:
     def wida(self):
+        global wayback_id
+        wayback_id = []
         for number in numbers:
             wayback_id.append(number)
     def __init__(self):
@@ -92,6 +94,8 @@ class WaybackIDAppending:
 
 class TweetGettingAndIDSplitting:
     def tgaids(self):
+        global twitter_url
+        twitter_url = []
         for tweety in tweeties:
             twitter_url.append(tweety)
     def __init__(self):
@@ -100,6 +104,8 @@ class TweetGettingAndIDSplitting:
 
 class ZippingAndUnzipping:
     def zau(self):
+        global wayback_id
+        global twitter_url
         wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y not in active_tweets]
         wayback_id = [x[0] for x in wayback_id_twitter_url]
         twitter_url = [x[1] for x in wayback_id_twitter_url]
@@ -147,12 +153,13 @@ class Text:
         textonly = []
         for url in tqdm(wayback, position=0, leave=True):
             response2 = session.get(url).text
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
+            regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
             textonly.append(tweet)
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
-        with open(f"{username}/{username}_text.txt", 'w') as file:
+        with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
             for text in textlist:
                 file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
         print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
@@ -162,19 +169,19 @@ class Text:
         t = threading.Thread(target=self.text)
         t.start()
 
-
 class Both:
     def both(self):
         textlist = []
         textonly = []
         for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
             response2 = session.get(url).text
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": "TweetTextSize TweetTextSize--jumbo js-tweet-text tweet-text"}).getText()
+            regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
             textonly.append(tweet)
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
-        with open(f"{username}/{username}_text.txt", 'w') as file:
+        with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
             for text in textlist:
                 file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
         print("Text file has been successfully saved!\nNow downloading pages.")
@@ -194,7 +201,6 @@ class Both:
     def __init__(self):
         t = threading.Thread(target=self.both)
         t.start()
-
 
 class Screenshot:
     def screenshot(self):
@@ -233,8 +239,6 @@ SplitTwitterID()
 wayback_screenshot = [a[:42] + 'if_' + a[42:] for a in long_url]
 # List of Wayback Machine URLs to use for 'download', 'text', and 'both'. NOT 'screenshot'.
 wayback = long_url
-
-
 
 number_of_elements = len(twitter_url)
 
