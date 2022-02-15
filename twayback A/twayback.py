@@ -113,8 +113,7 @@ class Download:
         for url, number in tqdm(fusion.items(), position=0, leave=True):
             while True:
                 try:
-                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                    r = requests.get(url, allow_redirects=False, headers=headers)
+                    r = requests.get(url, allow_redirects=False)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
                     with open(f"{username}/{number}.html", 'wb') as file:
@@ -142,8 +141,7 @@ class Text:
         for url in tqdm(long_url, position=0, leave=True):
             while True:
                 try:
-                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                    response2 = requests.get(url, allow_redirects=False, headers=headers).text
+                    response2 = requests.get(url, allow_redirects=False).text
                     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
                     try:
                         tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -179,8 +177,7 @@ class Both:
         for url in tqdm(long_url, position=0, leave=True, desc="Parsing text..."):
             while True:
                 try:
-                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                    response2 = requests.get(url, allow_redirects=False, headers=headers).text
+                    response2 = requests.get(url, allow_redirects=False).text
                     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
                     try:
                         tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -207,8 +204,7 @@ class Both:
         for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
             while True:
                 try:
-                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                    r = requests.get(url, allow_redirects=False, headers=headers)
+                    r = requests.get(url, allow_redirects=False)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
                     with open(f"{username}/{number}.html", 'wb') as file:
