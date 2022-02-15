@@ -91,8 +91,7 @@ for number in numbers:
 twitter_url = []
 for tweety in tweeties:
     twitter_url.append(tweety)
-print(active_tweets)
-time.sleep(20)
+
 wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y not in active_tweets]
 wayback_id = [x[0] for x in wayback_id_twitter_url]
 twitter_url = [x[1] for x in wayback_id_twitter_url]
