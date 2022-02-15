@@ -119,6 +119,7 @@ for url in data5:
             print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
             time.sleep(1)
             print("Retrying after 10 seconds...")
+            time.sleep(10)
             continue
         break
 
