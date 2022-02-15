@@ -104,8 +104,9 @@ for url in data5:
     if regex:
         twitter_id.append(regex.group())
 
+max_tries = 5
 for url in data5:
-    while True:
+    while max_tries > 0:
         try:
             link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
             headers = {}
@@ -121,7 +122,10 @@ for url in data5:
             print("Retrying after 10 seconds...")
             time.sleep(10)
             continue
+        max_tries -= 1
         break
+    if max_tries ==0:
+        pass
 
 fusion = dict(zip(wayback, twitter_id))
 
