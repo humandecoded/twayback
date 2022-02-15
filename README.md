@@ -23,18 +23,25 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
     
     -u, --username                                        Specify target user's Twitter handle
     
-    -from, --fromdate                                     Narrow search for deleted Tweets *archived* on and after this date
+    -from, --fromdate                                     Narrow search for deleted Tweets *archived*
+                                                          on and after this date
                                                           (can be combined with -to)
-                                                          (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
+                                                          (format YYYY-MM-DD or YYYY/MM/DD
+                                                          or YYYYMMDD, doesn't matter)
                                             
-    -to, --todate                                         Narrow search for deleted Tweets *archived* on and before this date
+    -to, --todate                                         Narrow search for deleted Tweets *archived*
+                                                          on and before this date
                                                           (can be combined with -from)
-                                                          (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
+                                                          (format YYYY-MM-DD or YYYY/MM/DD
+                                                          or YYYYMMDD, doesn't matter)
     Examples:
-    twayback -u taylorswift13                             Downloads all of @taylorswift13's deleted Tweets
+    twayback -u taylorswift13                             Downloads all of @taylorswift13's
+                                                          deleted Tweets
     
-    twayback -u jack -from 2022-01-05                     Downloads all of @jack's deleted Tweets
-                                                          *archived* since January 5, 2022 until now
+    twayback -u jack -from 2022-01-05                     Downloads all of @jack's
+                                                          deleted Tweets
+                                                          *archived* since January 5,
+                                                          2022 until now
     
     twayback -u drake -to 2022/02/09                      Downloads all of @drake's
                                                           deleted Tweets *archived*
