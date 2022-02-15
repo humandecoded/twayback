@@ -177,14 +177,25 @@ class Both:
         textlist = []
         textonly = []
         for url in tqdm(long_url, position=0, leave=True, desc="Parsing text..."):
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-            response2 = requests.get(url, allow_redirects=False, headers=headers).text
-            regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
-            try:
-                tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-                textonly.append(tweet + "\n\n---")
-            except AttributeError:
-                pass
+            while True:
+                try:
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
+                    response2 = requests.get(url, allow_redirects=False, headers=headers).text
+                    regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+                    try:
+                        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
+                        textonly.append(tweet + "\n\n---")
+                    except AttributeError:
+                        pass
+                except:
+                    print("There is a problem with the connection.\n")
+                    time.sleep(0.5)
+                    print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
+                    time.sleep(1)
+                    print("Retrying after 10 seconds...")
+                    time.sleep(10)
+                    continue
+                break
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
