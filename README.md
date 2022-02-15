@@ -21,15 +21,15 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 ## Usage
     twayback -u USERNAME [OPTIONS]
     
-    -u, --username                          Specify target user's Twitter handle
+    -u, --username                                        Specify target user's Twitter handle
     
-    -from, --fromdate                       Narrow search for deleted Tweets *archived* on and after this date
-                                            (can be combined with -to)
-                                            (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
+    -from, --fromdate                                     Narrow search for deleted Tweets *archived* on and after this date
+                                                          (can be combined with -to)
+                                                          (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
                                             
-    -to, --todate                           Narrow search for deleted Tweets *archived* on and before this date
-                                            (can be combined with -from)
-                                            (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
+    -to, --todate                                         Narrow search for deleted Tweets *archived* on and before this date
+                                                          (can be combined with -from)
+                                                          (format YYYY-MM-DD or YYYY/MM/DD or YYYYMMDD, doesn't matter)
     Examples:
     twayback -u taylorswift13                             Downloads all of @taylorswift13's deleted Tweets
     
