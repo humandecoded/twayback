@@ -16,6 +16,7 @@ import snscrape.modules.twitter as twitter
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from requests.exceptions import ConnectionError
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -25,6 +26,10 @@ args = vars(parser.parse_args())
 username = args['username']
 fromdate = args['fromdate']
 todate = args['todate']
+
+remove_list = ['-', '/']
+fromdate = fromdate.translate({ord(x): None for x in remove_list})
+todate = todate.translate({ord(x): None for x in remove_list})
 
 # Active, suspended, or doesn't exist?
 data1 =f"https://twitter.com/{username}"
@@ -107,12 +112,22 @@ for url in twitter_url:
 class Download:
     def download(self):
         for url in tqdm(wayback, position=0, leave=True):
-            r = requests.get(url)
-            directory = pathlib.Path(username)
-            directory.mkdir(exist_ok=True)
-            for number in twitter_id:
-                with open(f"{username}/{number}.html", 'wb') as file:
-                    file.write(r.content)
+            while True:
+                try:
+                    r = requests.get(url)
+                    directory = pathlib.Path(username)
+                    directory.mkdir(exist_ok=True)
+                    for number in twitter_id:
+                        with open(f"{username}/{number}.html", 'wb') as file:
+                            file.write(r.content)
+                except ConnectionError as CE:
+                    print("There is a problem with the connection.\n")
+                    time.sleep(0.5)
+                    print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
+                    time.sleep(1)
+                    print("Retrying...")
+                    continue
+                break
         print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
         time.sleep(1)
         print(f"Have a great day! Thanks for using Twayback :)")
@@ -125,13 +140,23 @@ class Text:
         textlist = []
         textonly = []
         for url in tqdm(wayback, position=0, leave=True):
-            response2 = session.get(url).text
-            regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
-            try:
-                tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-                textonly.append(tweet + "\n\n---")
-            except AttributeError:
-                pass
+            while True:
+                try:
+                    response2 = session.get(url).text
+                    regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+                    try:
+                        tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
+                        textonly.append(tweet + "\n\n---")
+                    except AttributeError:
+                        pass
+                except ConnectionError as CE:
+                    print("There is a problem with the connection.\n")
+                    time.sleep(0.5)
+                    print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
+                    time.sleep(1)
+                    print("Retrying...")
+                    continue
+                break
         textlist = zip(twitter_url, textonly)
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
@@ -166,12 +191,22 @@ class Both:
         print("Text file has been successfully saved!\nNow downloading pages.")
         time.sleep(1)
         for url in tqdm(wayback, position=0, leave=True, desc="Downloading HTML pages..."):
-            r = requests.get(url)
-            directory = pathlib.Path(username)
-            directory.mkdir(exist_ok=True)
-            for number in twitter_id:
-                with open(f"{username}/{number}.html", 'wb') as file:
-                    file.write(r.content)
+            while True:
+                try:
+                    r = requests.get(url)
+                    directory = pathlib.Path(username)
+                    directory.mkdir(exist_ok=True)
+                    for number in twitter_id:
+                        with open(f"{username}/{number}.html", 'wb') as file:
+                            file.write(r.content)
+                except ConnectionError as CE:
+                    print("There is a problem with the connection.\n")
+                    time.sleep(0.5)
+                    print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
+                    time.sleep(1)
+                    print("Retrying...")
+                    continue
+                break
         print("HTML pages have been successfully saved!")
         time.sleep(2)
         print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nHTML pages have also been downloaded.\nYou can find everything inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
@@ -240,4 +275,4 @@ elif answer.lower() == "screenshot":
 elif answer.lower() == "screnshot":
     Screenshot()
 else:
-    print("Goodbye!")
+    sys.exit()
