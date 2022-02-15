@@ -128,8 +128,7 @@ if answer.lower() == 'download':
     for url, number in tqdm(fusion.items(), position=0, leave=True):
         while True:
             try:
-                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                r = requests.get(url, allow_redirects=False, headers=headers)
+                r = requests.get(url, allow_redirects=False)
                 directory = pathlib.Path(username)
                 directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
@@ -149,8 +148,7 @@ elif answer.lower() == 'text':
     textlist = []
     textonly = []
     for url in tqdm(wayback, position=0, leave=True):
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-        response2 = requests.get(url, allow_redirects=False, headers=headers).text
+        response2 = requests.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
             tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -170,8 +168,7 @@ elif answer.lower() == 'both':
     textlist = []
     textonly = []
     for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-        response2 = requests.get(url, allow_redirects=False, headers=headers).text
+        response2 = requests.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
             tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -189,8 +186,7 @@ elif answer.lower() == 'both':
     for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
         while True:
             try:
-                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-                r = requests.get(url, allow_redirects=False, headers=headers)
+                r = requests.get(url, allow_redirects=False)
                 directory = pathlib.Path(username)
                 directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
@@ -211,8 +207,7 @@ elif answer.lower() == 'both':
 elif answer.lower() == "screenshot":
     for url in data5:
         link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
-        response1 = requests.get(link, allow_redirects=False, headers=headers)
+        response1 = requests.get(link, allow_redirects=False)
         jsonResponse = response1.json()
         wayback_url_screenshot = (jsonResponse['archived_snapshots']['closest']['url'])
         wayback_screenshot.append(wayback_url_screenshot)
