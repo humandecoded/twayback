@@ -14,7 +14,6 @@ import snscrape.modules.twitter as twitter
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from requests.exceptions import ConnectionError
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -120,12 +119,13 @@ class Download:
                     directory.mkdir(exist_ok=True)
                     with open(f"{username}/{number}.html", 'wb') as file:
                         file.write(r.content)
-                except ConnectionError as CE:
+                except:
                     print("There is a problem with the connection.\n")
                     time.sleep(0.5)
                     print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
                     time.sleep(1)
-                    print("Retrying...")
+                    print("Retrying after 10 seconds...")
+                    time.sleep(10)
                     continue
                 break
         print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
@@ -150,12 +150,13 @@ class Text:
                         textonly.append(tweet + "\n\n---")
                     except AttributeError:
                         pass
-                except ConnectionError as CE:
+                except:
                     print("There is a problem with the connection.\n")
                     time.sleep(0.5)
                     print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
                     time.sleep(1)
-                    print("Retrying...")
+                    print("Retrying after 10 seconds...")
+                    time.sleep(10)
                     continue
                 break
         textlist = zip(twitter_url, textonly)
@@ -201,12 +202,13 @@ class Both:
                     directory.mkdir(exist_ok=True)
                     with open(f"{username}/{number}.html", 'wb') as file:
                         file.write(r.content)
-                except ConnectionError as CE:
+                except:
                     print("There is a problem with the connection.\n")
                     time.sleep(0.5)
                     print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
                     time.sleep(1)
-                    print("Retrying...")
+                    print("Retrying after 10 seconds...")
+                    time.sleep(10)
                     continue
                 break
         print("HTML pages have been successfully saved!")
