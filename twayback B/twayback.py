@@ -104,9 +104,8 @@ for url in data5:
     if regex:
         twitter_id.append(regex.group())
 
-max_tries = 5
-for url in data5:
-    while max_tries > 0:
+for url in tqdm(data5, position=0, leave=True, desc="Converting Twitter links to Wayback links..."):
+    while True:
         try:
             link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
             headers = {}
@@ -114,19 +113,16 @@ for url in data5:
             jsonResponse = response1.json()
             wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
             wayback.append(wayback_url)
-        except KeyError:
-            print("There is a problem with the connection.\n")
+        except:
+            print("\n\nThere is a problem with the connection.\n")
             time.sleep(0.5)
             print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
             time.sleep(1)
-            print("Retrying after 10 seconds...")
-            time.sleep(10)
+            print("Retrying after 60 seconds...")
+            time.sleep(60)
             continue
-        max_tries -= 1
         break
-    if max_tries ==0:
-        pass
-
+        
 fusion = dict(zip(wayback, twitter_id))
 
 number_of_elements = len(data5)
@@ -150,11 +146,12 @@ if answer.lower() == 'download':
                 with open(f"{username}/{number}.html", 'wb') as file:
                     file.write(r.content)
             except:
-                print("There is a problem with the connection.\n")
+                print("\n\nThere is a problem with the connection.\n")
                 time.sleep(0.5)
                 print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
                 time.sleep(1)
-                print("Retrying after 10 seconds...")
+                print("Retrying after 30 seconds...")
+                time.sleep(30)
                 continue
             break
     print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
@@ -207,12 +204,13 @@ elif answer.lower() == 'both':
                 directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
                     file.write(r.content)
-            except ConnectionError as CE:
-                print("There is a problem with the connection.\n")
+            except:
+                print("\n\nThere is a problem with the connection.\n")
                 time.sleep(0.5)
                 print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
                 time.sleep(1)
-                print("Retrying...")
+                print("Retrying after 30 seconds...")
+                time.sleep(30)
                 continue
             break
     print("HTML pages have been successfully saved!")
