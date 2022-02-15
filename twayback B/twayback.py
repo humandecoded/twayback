@@ -126,13 +126,13 @@ else:
 
 # Actual downloading occurs here
 if answer.lower() == 'download':
-    for url, number in tqdm(fusion.items()):
+    for url, number in tqdm(fusion.items(), position=0, leave=True):
         while True:
             try:
-                directory = pathlib.Path(username)
-                directory.mkdir(exist_ok=True) 
                 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
                 r = requests.get(url, allow_redirects=False, headers=headers)
+                directory = pathlib.Path(username)
+                directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
                     file.write(r.content)
             except ConnectionError as CE:
@@ -190,10 +190,10 @@ elif answer.lower() == 'both':
     for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
         while True:
             try:
-                directory = pathlib.Path(username)
-                directory.mkdir(exist_ok=True) 
                 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
                 r = requests.get(url, allow_redirects=False, headers=headers)
+                directory = pathlib.Path(username)
+                directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
                     file.write(r.content)
             except ConnectionError as CE:
