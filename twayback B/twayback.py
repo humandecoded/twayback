@@ -3,8 +3,6 @@
 
 import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time, threading
 from pathlib import Path
-from requests import Session
-session = Session()
 import simplejson as json
 from tqdm import tqdm as tqdm
 import colorama
@@ -34,7 +32,7 @@ data1 =f"https://twitter.com/{username}"
 results = []
 headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
-response = session.get(data1, headers=headers, allow_redirects=False)
+response = requests.get(data1, headers=headers, allow_redirects=False)
 status_code = response.status_code
 if status_code == 200:
     print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE\n")
@@ -61,7 +59,7 @@ twitter_id = []
 wayback_screenshot = []
 wayback = []
 
-c = session.get(link).text
+c = requests.get(link).text
 urls = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
 # Is Twitter handle excluded by the Wayback Machine?
 blocklist = []
@@ -101,7 +99,7 @@ results = []
 headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
 for url in tqdm(data3):
-    response = session.get(url, headers=headers)
+    response = requests.get(url, headers=headers)
     status_code = response.status_code
     results.append((url, status_code))
 
@@ -137,7 +135,7 @@ class ScreenshotURLs:
         global wayback_screenshot
         for url in data5:
             link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
-            response1 = session.get(link)
+            response1 = requests.get(link)
             jsonResponse = response1.json()
             wayback_url_screenshot = (jsonResponse['archived_snapshots']['closest']['url'])
             wayback_screenshot.append(wayback_url_screenshot)
@@ -152,7 +150,7 @@ class NonScreenshotURLs:
         global wayback
         for url in data5:
             link = f"http://archive.org/wayback/available?url={url}&timestamp=19800101"
-            response1 = session.get(link)
+            response1 = requests.get(link)
             jsonResponse = response1.json()
             wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
             wayback.append(wayback_url)
@@ -195,7 +193,7 @@ class Text:
         textlist = []
         textonly = []
         for url in tqdm(wayback, position=0, leave=True):
-            response2 = session.get(url).text
+            response2 = requests.get(url).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
             try:
                 tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -220,7 +218,7 @@ class Both:
         textlist = []
         textonly = []
         for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
-            response2 = session.get(url).text
+            response2 = requests.get(url).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
             try:
                 tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
