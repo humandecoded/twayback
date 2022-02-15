@@ -4,8 +4,6 @@
 
 import requests, re, os, argparse, sys, time, bs4, lxml, pathlib, time, threading
 from pathlib import Path
-from requests import Session
-session = Session()
 import simplejson as json
 from tqdm import tqdm
 import colorama
@@ -36,7 +34,7 @@ data1 =f"https://twitter.com/{username}"
 results = []
 headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
-response = session.get(data1, headers=headers, allow_redirects=False)
+response = requests.get(data1, headers=headers, allow_redirects=False)
 status_code = response.status_code
 if status_code == 200:
     print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE\n")
@@ -55,7 +53,7 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
 link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
-c = session.get(link).text
+c = requests.get(link).text
 
 # Is Twitter handle excluded by the Wayback Machine?
 blocklist = []
@@ -83,7 +81,7 @@ twitter_id = []
 
 wayback_screenshot = []
 
-c = session.get(link).text
+c = requests.get(link).text
 r = re.compile(r"\b[0-9]{14}\b")
 numbers = r.findall(c)
 tweeties = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
@@ -142,7 +140,7 @@ class Text:
         for url in tqdm(wayback, position=0, leave=True):
             while True:
                 try:
-                    response2 = session.get(url).text
+                    response2 = requests.get(url).text
                     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
                     try:
                         tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -175,7 +173,7 @@ class Both:
         textlist = []
         textonly = []
         for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
-            response2 = session.get(url).text
+            response2 = requests.get(url).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
             try:
                 tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
