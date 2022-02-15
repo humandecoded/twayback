@@ -107,17 +107,19 @@ for url in twitter_url:
     if regex:
         twitter_id.append(regex.group())
 
+fusion = dict(zip(long_url, twitter_id))
+
 class Download:
     def download(self):
-        for url in tqdm(wayback, position=0, leave=True):
+        for url, number in tqdm(fusion.items(), position=0, leave=True):
             while True:
                 try:
-                    r = requests.get(url, allow_redirects=False)
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
+                    r = requests.get(url, allow_redirects=False, headers=headers)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
-                    for number in twitter_id:
-                        with open(f"{username}/{number}.html", 'wb') as file:
-                            file.write(r.content)
+                    with open(f"{username}/{number}.html", 'wb') as file:
+                        file.write(r.content)
                 except ConnectionError as CE:
                     print("There is a problem with the connection.\n")
                     time.sleep(0.5)
@@ -137,10 +139,11 @@ class Text:
     def text(self):
         textlist = []
         textonly = []
-        for url in tqdm(wayback, position=0, leave=True):
+        for url in tqdm(long_url, position=0, leave=True):
             while True:
                 try:
-                    response2 = requests.get(url).text
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
+                    response2 = requests.get(url, allow_redirects=False, headers=headers).text
                     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
                     try:
                         tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -172,8 +175,9 @@ class Both:
     def both(self):
         textlist = []
         textonly = []
-        for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
-            response2 = requests.get(url).text
+        for url in tqdm(long_url, position=0, leave=True, desc="Parsing text..."):
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
+            response2 = requests.get(url, allow_redirects=False, headers=headers).text
             regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
             try:
                 tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -188,15 +192,15 @@ class Both:
                 file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
         print("Text file has been successfully saved!\nNow downloading pages.")
         time.sleep(1)
-        for url in tqdm(wayback, position=0, leave=True, desc="Downloading HTML pages..."):
+        for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
             while True:
                 try:
-                    r = requests.get(url, allow_redirects=False)
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0", "Accept-Encoding": "*", "Connection": "keep-alive"}
+                    r = requests.get(url, allow_redirects=False, headers=headers)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
-                    for number in twitter_id:
-                        with open(f"{username}/{number}.html", 'wb') as file:
-                            file.write(r.content)
+                    with open(f"{username}/{number}.html", 'wb') as file:
+                        file.write(r.content)
                 except ConnectionError as CE:
                     print("There is a problem with the connection.\n")
                     time.sleep(0.5)
@@ -245,7 +249,6 @@ class Screenshot:
 wayback_screenshot = [a[:42] + 'if_' + a[42:] for a in long_url]
 # List of Wayback Machine URLs to use for 'download', 'text', and 'both'. NOT 'screenshot'.
 long_url = list(set(long_url))
-wayback = long_url
 
 number_of_elements = len(twitter_url)
 
