@@ -105,11 +105,22 @@ for url in data5:
         twitter_id.append(regex.group())
 
 for url in data5:
-    link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
-    response1 = requests.get(link)
-    jsonResponse = response1.json()
-    wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
-    wayback.append(wayback_url)        
+    while True:
+        try:
+            link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
+            headers = {}
+            response1 = requests.get(link)
+            jsonResponse = response1.json()
+            wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
+            wayback.append(wayback_url)
+        except KeyError:
+            print("There is a problem with the connection.\n")
+            time.sleep(0.5)
+            print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
+            time.sleep(1)
+            print("Retrying after 10 seconds...")
+            continue
+        break
 
 fusion = dict(zip(wayback, twitter_id))
 
