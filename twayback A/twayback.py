@@ -114,7 +114,7 @@ class Download:
         for url in tqdm(wayback, position=0, leave=True):
             while True:
                 try:
-                    r = requests.get(url)
+                    r = requests.get(url, allow_redirects=False)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
                     for number in twitter_id:
@@ -193,7 +193,7 @@ class Both:
         for url in tqdm(wayback, position=0, leave=True, desc="Downloading HTML pages..."):
             while True:
                 try:
-                    r = requests.get(url)
+                    r = requests.get(url, allow_redirects=False)
                     directory = pathlib.Path(username)
                     directory.mkdir(exist_ok=True)
                     for number in twitter_id:
