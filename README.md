@@ -33,7 +33,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
     Examples:
     twayback -u taylorswift13                             Downloads all of @taylorswift13's deleted Tweets
     
-    twayback -u jack -from 2022-01-05                     Downloads all of @jack's deleted Tweets *archived* since January 5, 2021 until now
+    twayback -u jack -from 2022-01-05                     Downloads all of @jack's deleted Tweets *archived* since January 5, 2022 until now
     
     twayback -u drake -to 2022/02/09                      Downloads all of @drake's deleted Tweets *archived* since the beginning until February 9, 2022
     
