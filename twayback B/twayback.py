@@ -1,7 +1,7 @@
 # This is Twayback B.
 # This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
 
-import requests, re, os, argparse, sys, bs4, lxml, pathlib, time
+import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, platform
 from pathlib import Path
 import simplejson as json
 from tqdm import tqdm as tqdm
@@ -31,7 +31,9 @@ async def asyncStarter(url_list):
     status_list = await asyncio.gather(*(checkStatus(u, session) for u in url_list))
     await session.close()
     return status_list
-
+# This command is for Windows users, as they might run into "RuntimeError: Event loop is closed" error.
+if platform.system() == 'Windows':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 parser = argparse.ArgumentParser()
