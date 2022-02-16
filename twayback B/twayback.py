@@ -1,7 +1,7 @@
 # This is Twayback B.
 # This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
 
-import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, platform
+import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, aiohttp, asyncio, platform
 from pathlib import Path
 import simplejson as json
 from tqdm import tqdm as tqdm
@@ -12,6 +12,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from requests import Session
+session = Session()
 # for async
 from aiohttp import ClientSession
 import asyncio
@@ -31,10 +33,8 @@ async def asyncStarter(url_list):
     status_list = await asyncio.gather(*(checkStatus(u, session) for u in url_list))
     await session.close()
     return status_list
-# This command is for Windows users, as they might run into "RuntimeError: Event loop is closed" error.
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -72,17 +72,22 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 
 print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
-data2 = []
+twitter_url = []
+wayback_id = []
+data3 = []
 data4 = []
 data5=[]
-twitter_id = []
 wayback_screenshot = []
 wayback = []
+long_url = []
 
 link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
 
 c = requests.get(link).text
+r = re.compile(r"\b[0-9]{14}\b")
+numbers = r.findall(c)
 urls = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
+tweeties = urls
 # Is Twitter handle excluded by the Wayback Machine?
 blocklist = []
 blocks = re.findall(r'Blocked', c)
@@ -94,14 +99,18 @@ for block in blocks:
     else:
         pass
 
-# Attach all archived Tweet links to data2
-for url in urls:
-    data2.append(f"{url}")
 
-# Remove duplicate links
-data3 = list(set(data2))
 
-number_of_elements = len(data3)
+# Attach all archived Tweet links to twitter_url
+for tweety in tweeties:
+    twitter_url.append(tweety)
+
+# Attach all respective Wayback IDs to wayback_id
+for number in numbers:
+    wayback_id.append(number)
+
+
+number_of_elements = len(wayback_id)
 if number_of_elements >= 1000:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\nThat's a lot of Tweets! It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
 else:
@@ -116,7 +125,7 @@ headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https:/
 # check them asyncronously and add the results to a list
 # this is broken in to chunks so we don't get blocked by twitter for too many requests
 temp_list =  []
-for url in tqdm(data3):
+for url in tqdm(twitter_url):
     temp_list.append(url)
     # after our list has 15 elements we go for it
     if len(temp_list) == 15:
@@ -137,34 +146,28 @@ for url, status_code in results:
 
 data4 = [g for g in data3 if " 404" in g]
 data5 = [g.replace(' 404', '') for g in data4]
-        
+
+twitter_id = [] 
 for url in data5:
     regex = re.search(r"\b(\d{12,19})\b", url)
     if regex:
         twitter_id.append(regex.group())
 
-for url in tqdm(data5, position=0, leave=True, desc="Converting Twitter links to Wayback links..."):
-    while True:
-        try:
-            link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
-            headers = {}
-            response1 = requests.get(link)
-            jsonResponse = response1.json()
-            wayback_url = (jsonResponse['archived_snapshots']['closest']['url'])
-            wayback.append(wayback_url)
-        except:
-            print("\n\nThere is a problem with the connection.\n")
-            time.sleep(0.5)
-            print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
-            time.sleep(1)
-            print("Retrying after 60 seconds...")
-            time.sleep(60)
-            continue
-        break
-        
-fusion = dict(zip(wayback, twitter_id))
+wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y in data5]
 
-number_of_elements = len(data5)
+wayback_id = [x[0] for x in wayback_id_twitter_url]
+
+twitter_url = [x[1] for x in wayback_id_twitter_url]
+
+
+for number, url in zip(wayback_id, twitter_url):
+    long_url.append(f"https://web.archive.org/web/{number}/{url}")
+
+wayback = long_url
+
+fusion = dict(zip(long_url, twitter_id))
+
+number_of_elements = len(fusion.keys())
 
 if number_of_elements == 1:
     answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download the Tweet,\nget its text only, both, or take a screenshot?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
@@ -179,7 +182,7 @@ if answer.lower() == 'download':
     for url, number in tqdm(fusion.items(), position=0, leave=True):
         while True:
             try:
-                r = requests.get(url, allow_redirects=False)
+                r = session.get(url, allow_redirects=False)
                 directory = pathlib.Path(username)
                 directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
@@ -200,7 +203,7 @@ elif answer.lower() == 'text':
     textlist = []
     textonly = []
     for url in tqdm(wayback, position=0, leave=True):
-        response2 = requests.get(url, allow_redirects=False).text
+        response2 = session.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
             tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -220,7 +223,7 @@ elif answer.lower() == 'both':
     textlist = []
     textonly = []
     for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
-        response2 = requests.get(url, allow_redirects=False).text
+        response2 = session.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
             tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
@@ -238,7 +241,7 @@ elif answer.lower() == 'both':
     for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
         while True:
             try:
-                r = requests.get(url, allow_redirects=False)
+                r = session.get(url, allow_redirects=False)
                 directory = pathlib.Path(username)
                 directory.mkdir(exist_ok=True)
                 with open(f"{username}/{number}.html", 'wb') as file:
