@@ -5,3 +5,5 @@ requests
 selenium
 simplejson
 tqdm
+aiohttp
+asyncio
