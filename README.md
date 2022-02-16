@@ -19,7 +19,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  - Lets you know if a target handle's archived Tweets have been excluded from the Wayback Machine.
 
 ## Usage
-    twayback -u USERNAME [OPTIONS]
+>    twayback -u USERNAME [OPTIONS]
     
     -u, --username                                        Specify target user's Twitter handle
     
