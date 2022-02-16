@@ -1,7 +1,7 @@
 # This is Twayback B.
 # This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
 
-import requests, re, os, argparse, sys, bs4, lxml, pathlib, time
+import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, platform
 from pathlib import Path
 import simplejson as json
 from tqdm import tqdm as tqdm
@@ -12,6 +12,29 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+# for async
+from aiohttp import ClientSession
+import asyncio
+
+# checks the status of a given url
+async def checkStatus(url, session: ClientSession):
+
+    req = await session.request(method="GET", url=url)
+    return req.real_url, req.status
+    
+# controls our async event loop
+async def asyncStarter(url_list):
+    # this will wrap our event loop and feed the the various urls to their async request function.
+    status_list = []
+    headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
+    session = ClientSession(headers=headers)
+    status_list = await asyncio.gather(*(checkStatus(u, session) for u in url_list))
+    await session.close()
+    return status_list
+# This command is for Windows users, as they might run into "RuntimeError: Event loop is closed" error.
+if platform.system() == 'Windows':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
@@ -88,10 +111,26 @@ else:
 results = []
 headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
+###############################################################################
+# this block will take 15 entries of our url list
+# check them asyncronously and add the results to a list
+# this is broken in to chunks so we don't get blocked by twitter for too many requests
+temp_list =  []
 for url in tqdm(data3):
-    response = requests.get(url, allow_redirects=False, headers=headers)
-    status_code = response.status_code
-    results.append((url, status_code))
+    temp_list.append(url)
+    # after our list has 15 elements we go for it
+    if len(temp_list) == 15:
+        # get a list containing our ten urls and their statuses
+         statuses = asyncio.run(asyncStarter(temp_list))
+         time.sleep(.05)
+         # add to our master list
+         results = results + statuses
+         # reset our temp list
+         temp_list = []
+# catch the last few elements of our list
+statuses = asyncio.run(asyncStarter(temp_list))
+results = results + statuses
+#####################################################################################################
 
 for url, status_code in results:
     data3.append(f"{url} {status_code}")
