@@ -56,23 +56,23 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 ## Twayback A vs Twayback B
 Currently, there are two versions of Twayback:
 
-  - Twayack A's pros: **faster**, no need to check status codes.
+  - Twayack A's pros: no need to check status codes
   - Twayback A's cons: **it does not work on Twitter accounts that currently have more than 3,200 Tweets.** [Known limitation.](https://twittercommunity.com/t/tweet-limit-at-3200/156391)
     - However, if account has fewer than 3,200 Tweets, Twayback A can download all their deleted archived Tweets.
 <div align="center">
   
-[![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback.zip)
+[![windows](https://img.shields.io/badge/Download-Twayback%20A%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F16%2F2022/twayback.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F16%2F2022/twayback.zip)
   
 </div>
 
   - Twayback B's pros: no ~3,200 Tweets limit, so it can download all deleted archived Tweets **regardless of how many active Tweets the account has**.
-  - Twayback B's cons: slower, requires status code checking.
+  - Twayback B's cons: requires status code checking.
 
 <div align="center">
 
-[![windows](https://img.shields.io/badge/Download-Twayback%20B%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F14%2F2022/twayback_B.zip)
+[![windows](https://img.shields.io/badge/Download-Twayback%20B%20for%20Windows-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F16%2F2022/twayback_B.exe)
+[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F16%2F2022/twayback_B.zip)
   
 </div>
 
@@ -112,5 +112,6 @@ Screenshots are done using Selenium. To successfully take screenshots, please fo
 ## Call for help 🙏
 I welcome, and encourage, contributions! They make my day.
 What I can think of off the top of my head:
- - **Code simplification/improvement**: If you're a pro at Python and know better ways to do what's in the script, please feel free to do so! If it works well, if not better, I will most likely merge it 😃
- - **async/await**: This one is badly needed. I'm trying to create another version of the script that doesn't check the status code of every archived URL. Rather, it gets the list of archived URLs from the Wayback Machine, gets the list of online URLs from the Twitter profile, subtracts both, and splits the Twitter URLs to get their IDs to serve as filenames. All of this can be pretty slow without async/await. I tried implementing it, but I suck at it, and I don't know where to put what. Multithreading and multiprocessing are also good.
+ - **Merging Twayback A and B**: I would love help on combining both scripts. It's time consuming to edit and compile two scripts simultaneously. It can also be confusing for newcomers. One way I'm thinking of is to give the user an option from the start to call either Twayback A's .py file or Twayback B's .py file. By having a main.py, [I can then compile using pyInstaller both versions into one executable](https://stackoverflow.com/a/51455934).
+ -  **Code simplification/improvement**: If you're a pro at Python and know better ways to do what's in the script, please feel free to do so! If it works well, if not better, I will most likely merge it 😃
+ - ~~**async/await**: This one is badly needed. I'm trying to create another version of the script that doesn't check the status code of every archived URL. Rather, it gets the list of archived URLs from the Wayback Machine, gets the list of online URLs from the Twitter profile, subtracts both, and splits the Twitter URLs to get their IDs to serve as filenames. All of this can be pretty slow without async/await. I tried implementing it, but I suck at it, and I don't know where to put what. Multithreading and multiprocessing are also good.~~ ✅ (thanks to @humandecoded !)
