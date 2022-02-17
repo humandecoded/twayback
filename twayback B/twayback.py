@@ -131,7 +131,7 @@ headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https:/
 # check them asyncronously and add the results to a list
 
 
-results = asyncio.run(asyncStarter(data3))
+results = asyncio.run(asyncStarter(twitter_url))
  
 #####################################################################################################
 
