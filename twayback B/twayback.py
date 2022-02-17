@@ -5,6 +5,9 @@ import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, aiohttp, async
 from pathlib import Path
 import simplejson as json
 from tqdm import tqdm as tqdm
+# this import needs to be named different since we've used up tqdm above
+# used for progress bar on our async operations
+from tqdm.asyncio import tqdm as asyncProgress
 import colorama
 from colorama import  Fore, Back, Style
 colorama.init(autoreset=True)
@@ -37,7 +40,7 @@ async def asyncStarter(url_list):
         # limit to 50 concurrent jobs
         sem = asyncio.Semaphore(50)
         # launch all the url checks concurrently as coroutines 
-        status_list = await asyncio.gather(*(checkStatus(u, session, sem) for u in url_list))
+        status_list = await asyncProgress.gather(*(checkStatus(u, session, sem) for u in url_list))
     # return a list of the results    
     return status_list
 if platform.system() == 'Windows':
