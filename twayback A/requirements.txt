@@ -1,8 +1,0 @@
-beautifulsoup4
-colorama
-lxml
-requests
-selenium
-simplejson
-git+https://github.com/JustAnotherArchivist/snscrape.git
-tqdm
