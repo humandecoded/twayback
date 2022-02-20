@@ -46,41 +46,6 @@ async def asyncStarter(url_list):
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-u','--username', required=True, default='')
-parser.add_argument('-from','--fromdate', required=False, default='')
-parser.add_argument('-to','--todate', required=False, default='')
-args = vars(parser.parse_args())
-username = args['username']
-fromdate = args['fromdate']
-todate = args['todate']
-
-remove_list = ['-', '/']
-fromdate = fromdate.translate({ord(x): None for x in remove_list})
-todate = todate.translate({ord(x): None for x in remove_list})
-
-# Active, suspended, or doesn't exist?
-data1 =f"https://twitter.com/{username}"
-results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
-
-response = requests.get(data1, headers=headers, allow_redirects=False)
-status_code = response.status_code
-if status_code == 200:
-    print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE\n")
-    time.sleep(1)
-elif status_code == 302:
-    print(Back.RED + Fore.WHITE + f"Account is SUSPENDED. This means all of {Back.WHITE + Fore.RED + username + Back.RED + Fore.WHITE}'s Tweets will be downloaded.\n")
-    time.sleep(3)
-else:
-    print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this handle's Tweets.\n")
-    time.sleep(4)
-
-stuck = "(Don't worry, Twayback isn't stuck!"
-
-print(f"Please wait. Twayback is searching far and wide for deleted tweets from {username}.\nDrink some delicious coffee while this gets done.\n\n{Back.MAGENTA + stuck + Fore.WHITE}\nDepending on the number of Tweets, this step might take several minutes.)\n")
-
-print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
 twitter_url = []
 wayback_id = []
@@ -91,7 +56,7 @@ wayback_screenshot = []
 wayback = []
 long_url = []
 
-link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
+link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/elonmusk/status/1494216634822766594&matchType=prefix&filter=statuscode:200&mimetype:text/html&from=20220101"
 
 c = requests.get(link).text
 r = re.compile(r"\b[0-9]{14}\b")
@@ -109,6 +74,7 @@ for block in blocks:
     else:
         pass
 
+answer = input("\nWould you like the latest snapshot of each Tweet? Type 'one'.\n\nIf you want all historical snapshots of a Tweet, type 'all'.\n")
 
 
 # Attach all archived Tweet links to twitter_url
@@ -119,7 +85,20 @@ for tweety in tweeties:
 for number in numbers:
     wayback_id.append(number)
 
-
+for url, number in zip(twitter_url, wayback_id):
+    if answer.lower()=="one":
+        d = dict(zip(twitter_url, wayback_id))
+        twitter_url = [f for f in d.keys()]
+        wayback_id = [f for f in d.values()]
+    elif answer.lower()=="1":
+        d = dict(zip(twitter_url, wayback_id))
+        twitter_url = [f for f in d.keys()]
+        wayback_id = [f for f in d.values()]
+    elif answer.lower()=="all":
+        pass
+    else:
+        pass
+        
 number_of_elements = len(wayback_id)
 if number_of_elements >= 1000:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\nThat's a lot of Tweets! It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
@@ -175,6 +154,9 @@ else:
     answer = input(f"\nAbout {number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
 
 # Actual downloading occurs here
+textlist = []
+textonly = []
+
 if answer.lower() == 'download':
     for url, number in tqdm(fusion.items(), position=0, leave=True):
         while True:
@@ -197,8 +179,6 @@ if answer.lower() == 'download':
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 elif answer.lower() == 'text':
-    textlist = []
-    textonly = []
     for url in tqdm(wayback, position=0, leave=True):
         response2 = session.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
@@ -208,13 +188,17 @@ elif answer.lower() == 'text':
         except AttributeError:
             pass
     textlist = zip(data5, textonly)
-    directory = pathlib.Path(username)
+    print(data5)
+    time.sleep(5)
+    print(textonly)
+    time.sleep(5)
+    for a, b in zip(data5, textonly):
+        print(a, b)
+    directory = pathlib.Path("elonmusk")
     directory.mkdir(exist_ok=True)
-    with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
+    with open(f"elonmusk/elonmusk_text.txt", 'w', encoding='utf-8') as file:
         for text in textlist:
-            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
-    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
-    time.sleep(1)
+            file.writelines(text[0]+ " " + text[1] +"\n" + "\n")
     print(f"Have a great day! Thanks for using Twayback :)")
 elif answer.lower() == 'both':
     textlist = []
