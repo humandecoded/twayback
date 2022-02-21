@@ -1,6 +1,3 @@
-# This is Twayback B.
-# This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
-
 from operator import contains
 import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, aiohttp, asyncio, platform
 from pathlib import Path
