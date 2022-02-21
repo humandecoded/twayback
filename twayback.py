@@ -109,6 +109,7 @@ for block in blocks:
     else:
         pass
 
+answer = input("\nWould you like the latest snapshot of each Tweet? Type 'one'.\n\nIf you want all historical snapshots of a Tweet, type 'all'.\n")
 
 
 # Attach all archived Tweet links to twitter_url
@@ -119,7 +120,21 @@ for tweety in tweeties:
 for number in numbers:
     wayback_id.append(number)
 
-
+for url, number in zip(twitter_url, wayback_id):
+    if answer.lower()=="one":
+        d = dict(zip(twitter_url, wayback_id))
+        twitter_url = [f for f in d.keys()]
+        wayback_id = [f for f in d.values()]
+    elif answer.lower()=="1":
+        d = dict(zip(twitter_url, wayback_id))
+        twitter_url = [f for f in d.keys()]
+        wayback_id = [f for f in d.values()]
+    elif answer.lower()=="all":
+        pass
+    else:
+        pass
+    
+    
 number_of_elements = len(wayback_id)
 if number_of_elements >= 1000:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\nThat's a lot of Tweets! It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
