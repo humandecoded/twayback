@@ -1,6 +1,7 @@
 # This is Twayback B.
 # This version is recommended if you want to download all deleted Tweets. It requires status checking of archive links.
 
+from operator import contains
 import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, aiohttp, asyncio, platform
 from pathlib import Path
 import simplejson as json
@@ -43,9 +44,26 @@ async def asyncStarter(url_list):
         status_list = await asyncProgress.gather(*(checkStatus(u, session, sem) for u in url_list))
     # return a list of the results    
     return status_list
+
+# framework for future functions
+def downloadHTML():
+    pass
+
+def takeScreenshots():
+    pass
+
+def downloadText():
+    pass
+
+def getStatuses():
+    # will call one of the download functions above
+    pass
+
+
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+# parse out args passed in from command line
 parser = argparse.ArgumentParser()
 parser.add_argument('-u','--username', required=True, default='')
 parser.add_argument('-from','--fromdate', required=False, default='')
@@ -54,18 +72,16 @@ args = vars(parser.parse_args())
 username = args['username']
 fromdate = args['fromdate']
 todate = args['todate']
-
 remove_list = ['-', '/']
 fromdate = fromdate.translate({ord(x): None for x in remove_list})
 todate = todate.translate({ord(x): None for x in remove_list})
-
-# Active, suspended, or doesn't exist?
-data1 =f"https://twitter.com/{username}"
+account_url =f"https://twitter.com/{username}"
 results = []
 headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
-response = requests.get(data1, headers=headers, allow_redirects=False)
-status_code = response.status_code
+# Active, suspended, or doesn't exist?
+account_response = requests.get(account_url, headers=headers, allow_redirects=False)
+status_code = account_response.status_code
 if status_code == 200:
     print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE\n")
     time.sleep(1)
@@ -82,87 +98,68 @@ print(f"Please wait. Twayback is searching far and wide for deleted tweets from 
 
 print(f"Grabbing links for Tweets from the Wayback Machine...\n")
 
-twitter_url = []
-wayback_id = []
-data3 = []
-data4 = []
-data5=[]
+# list of deleted tweet urls
+missing_tweet_list=[]
 wayback_screenshot = []
-wayback = []
-long_url = []
+# list of deleted tweet wayback machine urls
+wayback_url_list = []
 
-link = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
+# build a url to take advantage of wayback machine cdx api
+wayback_cdx_url = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
 
-c = requests.get(link).text
-r = re.compile(r"\b[0-9]{14}\b")
-numbers = r.findall(c)
-urls = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', c)
-tweeties = urls
+# grab results of cdx query
+cdx_page_text = requests.get(wayback_cdx_url).text
+
 # Is Twitter handle excluded by the Wayback Machine?
 blocklist = []
-blocks = re.findall(r'Blocked', c)
+blocks = re.findall(r'Blocked', cdx_page_text)
 for block in blocks:
     blocklist.append(f"{block}") 
     if any("Blocked" in s for s in blocklist):
         print(f"Sorry, no deleted Tweets can be retrieved for {username}.\nThis is because the Wayback Machine excludes Tweets for this handle.")
         exit()
-    else:
-        pass
 
 
-
-# Attach all archived Tweet links to twitter_url
-for tweety in tweeties:
-    twitter_url.append(tweety)
-
-# Attach all respective Wayback IDs to wayback_id
-for number in numbers:
-    wayback_id.append(number)
+r = re.compile(r"\b[0-9]{14}\b")
+# pull out wayback id number cdx query results
+wayback_id_list = r.findall(cdx_page_text)
+# extract the twitter url from api call above
+twitter_url_list = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', cdx_page_text)
 
 
-number_of_elements = len(wayback_id)
+number_of_elements = len(wayback_id_list)
 if number_of_elements >= 1000:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\nThat's a lot of Tweets! It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
 else:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\n")
 
-# Obtain status codes
-results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
-
 ###############################################################################
-# check them asyncronously and add the results to a list
-
-
-results = asyncio.run(asyncStarter(twitter_url))
+# check twitter urls asyncronously and add the results to a list
+# broken out in to functions
+results_list = asyncio.run(asyncStarter(twitter_url_list))
  
 #####################################################################################################
 
-for url, status_code in results:
-    data3.append(f"{url} {status_code}")
+# extract just the urls that gave a 404 upon checking
+for result in results_list:
+    if result[1] == 404:
+        missing_tweet_list.append(str(result[0]))
 
-data4 = [g for g in data3 if " 404" in g]
-data5 = [g.replace(' 404', '') for g in data4]
-
-twitter_id = [] 
-for url in data5:
+twitter_id_list = [] 
+# extract just the numeric portion of twitter urls that gave a 404 above
+for url in missing_tweet_list:
     regex = re.search(r"\b(\d{12,19})\b", url)
     if regex:
-        twitter_id.append(regex.group())
+        twitter_id_list.append(regex.group())
 
-wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id, twitter_url) if y in data5]
+# generate a tuple containing the wayback id and twitter url for just our missing tweets
+wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id_list, twitter_url_list) if y in missing_tweet_list]
+# generate list of full urls for use with wayback machine
+for number, url in wayback_id_twitter_url:
+    wayback_url_list.append(f"https://web.archive.org/web/{number}/{url}")
 
-wayback_id = [x[0] for x in wayback_id_twitter_url]
-
-twitter_url = [x[1] for x in wayback_id_twitter_url]
-
-
-for number, url in zip(wayback_id, twitter_url):
-    long_url.append(f"https://web.archive.org/web/{number}/{url}")
-
-wayback = long_url
-
-fusion = dict(zip(long_url, twitter_id))
+# create a dictionary with wayback url as key and the numeric portion of twitter url as value
+fusion = dict(zip(wayback_url_list, twitter_id_list))
 
 number_of_elements = len(fusion.keys())
 
@@ -199,7 +196,7 @@ if answer.lower() == 'download':
 elif answer.lower() == 'text':
     textlist = []
     textonly = []
-    for url in tqdm(wayback, position=0, leave=True):
+    for url in tqdm(wayback_url_list, position=0, leave=True):
         response2 = session.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
@@ -207,7 +204,7 @@ elif answer.lower() == 'text':
             textonly.append(tweet + "\n\n---")
         except AttributeError:
             pass
-    textlist = zip(data5, textonly)
+    textlist = zip(missing_tweet_list, textonly)
     directory = pathlib.Path(username)
     directory.mkdir(exist_ok=True)
     with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
@@ -219,7 +216,7 @@ elif answer.lower() == 'text':
 elif answer.lower() == 'both':
     textlist = []
     textonly = []
-    for url in tqdm(wayback, position=0, leave=True, desc="Parsing text..."):
+    for url in tqdm(wayback_url_list, position=0, leave=True, desc="Parsing text..."):
         response2 = session.get(url, allow_redirects=False).text
         regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
         try:
@@ -227,7 +224,7 @@ elif answer.lower() == 'both':
             textonly.append(tweet + "\n\n---")
         except AttributeError:
             pass
-    textlist = zip(data5, textonly)
+    textlist = zip(missing_tweet_list, textonly)
     directory = pathlib.Path(username)
     directory.mkdir(exist_ok=True)
     with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
@@ -258,7 +255,7 @@ elif answer.lower() == 'both':
     time.sleep(1)
     print(f"Have a great day! Thanks for using Twayback :)")
 elif answer.lower() == "screenshot":
-    for url in data5:
+    for url in missing_tweet_list:
         link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
         response1 = requests.get(link, allow_redirects=False)
         jsonResponse = response1.json()
@@ -268,7 +265,7 @@ elif answer.lower() == "screenshot":
     print('Taking screenshots...')
     time.sleep(1)
     print("This might take a long time depending on your Internet speed\nand number of Tweets to screenshot.")
-    for url, number in zip(wayback_screenshot, twitter_id):
+    for url, number in zip(wayback_screenshot, twitter_id_list):
         directory = pathlib.Path(username)
         directory.mkdir(exist_ok=True)
         options = Options()
@@ -279,7 +276,7 @@ elif answer.lower() == "screenshot":
         chrome = webdriver.Chrome(options=options)
         chrome.get(url)
         image = chrome.find_element(By.XPATH, "//*[@id='permalink-overlay-dialog']/div[3]/div/div/div[1]")
-        for numbers in twitter_id:
+        for numbers in twitter_id_list:
             image.screenshot(f"{username}/{number}.png")
     print("Screenshots have been successfully saved!")
     time.sleep(2)
