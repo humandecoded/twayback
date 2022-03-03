@@ -36,7 +36,7 @@ async def asyncStarter(url_list):
     # using a with statement seems to be working out better
     async with ClientSession(headers=headers) as session:
         # limit to 50 concurrent jobs
-        sem = asyncio.Semaphore(50)
+        sem = asyncio.Semaphore(25)
         # launch all the url checks concurrently as coroutines 
         status_list = await asyncProgress.gather(*(checkStatus(u, session, sem) for u in url_list))
     # return a list of the results    
