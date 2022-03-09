@@ -2,8 +2,8 @@
 <div align="center">
   
 
-[![windows](https://img.shields.io/badge/Télécharger-le%20fichier%20EXE-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/02%2F18%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Télécharger-Script%20Python-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/02%2F18%2F2022/twayback.zip)
+[![windows](https://img.shields.io/badge/Télécharger-le%20fichier%20EXE-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/03%2F09%2F2022/twayback.exe)
+[![python](https://img.shields.io/badge/Télécharger-Script%20Python-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/03%2F09%2F2022/twayback.zip)
   
   
 ![screenshot](https://i.imgur.com/5YP0U4l.jpg)
