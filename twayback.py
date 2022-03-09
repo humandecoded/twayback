@@ -32,9 +32,10 @@ async def asyncStarter(url_list):
     # this will wrap our event loop and feed the the various urls to their async request function.
     status_list = []
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
-    
-    # using a with statement seems to be working out better
-    async with ClientSession(headers=headers) as session:
+    # override aiohttp terminating after 5 minutes
+    session_timeout = aiohttp.ClientTimeout(total=None)
+    # using async with statement seems to be working out better
+    async with ClientSession(headers=headers, trust_env = True, timeout=session_timeout) as session:
         # limit to 50 concurrent jobs
         sem = asyncio.Semaphore(25)
         # launch all the url checks concurrently as coroutines 
