@@ -1,285 +1,278 @@
-from operator import contains
-import requests, re, os, argparse, sys, bs4, lxml, pathlib, time, aiohttp, asyncio, platform
-from pathlib import Path
-import simplejson as json
-from tqdm import tqdm as tqdm
-# this import needs to be named different since we've used up tqdm above
-# used for progress bar on our async operations
-from tqdm.asyncio import tqdm as asyncProgress
+#!/usr/bin/env python
+
 import colorama
-from colorama import  Fore, Back, Style
-colorama.init(autoreset=True)
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from requests import Session
-session = Session()
-# for async
-from aiohttp import ClientSession, TCPConnector
+import requests
+import platform
+import argparse
+import bs4
 import asyncio
+import sys
+import re
+import urllib3
+from colorama import Fore, Back
+from requests_futures.sessions import FuturesSession
+from concurrent.futures import as_completed
+from tqdm import tqdm
+from time import sleep
+from pathlib import Path
+from playwright.sync_api import sync_playwright
 
-# checks the status of a given url
-async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore):
-    
-    async with sem:
-        async with session.get(url) as response:
-            return response.real_url, response.status
-        
-    
-# controls our async event loop
-async def asyncStarter(url_list):
-    # this will wrap our event loop and feed the the various urls to their async request function.
-    status_list = []
-    headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
-    # override aiohttp terminating after 5 minutes
-    session_timeout = aiohttp.ClientTimeout(total=None)
-    # using async with statement seems to be working out better
-    async with ClientSession(headers=headers, trust_env = True, timeout=session_timeout) as session:
-        # limit to 50 concurrent jobs
-        sem = asyncio.Semaphore(25)
-        # launch all the url checks concurrently as coroutines 
-        status_list = await asyncProgress.gather(*(checkStatus(u, session, sem) for u in url_list))
-    # return a list of the results    
-    return status_list
-
-# framework for future functions
-def downloadHTML():
-    pass
-
-def takeScreenshots():
-    pass
-
-def downloadText():
-    pass
-
-def getStatuses():
-    # will call one of the download functions above
-    pass
-
-
+colorama.init(autoreset=True)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-# parse out args passed in from command line
+# Parse arguments passed in from command line
 parser = argparse.ArgumentParser()
-parser.add_argument('-u','--username', required=True, default='')
-parser.add_argument('-from','--fromdate', required=False, default='')
-parser.add_argument('-to','--todate', required=False, default='')
+parser.add_argument('-u', '--username', required=True, default='')
+parser.add_argument('-from', '--fromdate', required=False, default='')
+parser.add_argument('-to', '--todate', required=False, default='')
 args = vars(parser.parse_args())
-username = args['username']
-fromdate = args['fromdate']
-todate = args['todate']
+account_name = args['username']
+from_date = args['fromdate']
+to_date = args['todate']
 remove_list = ['-', '/']
-fromdate = fromdate.translate({ord(x): None for x in remove_list})
-todate = todate.translate({ord(x): None for x in remove_list})
-account_url =f"https://twitter.com/{username}"
-results = []
-headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
+from_date = from_date.translate({ord(x): None for x in remove_list})
+to_date = to_date.translate({ord(x): None for x in remove_list})
+account_url = f"https://twitter.com/{account_name}"
+headers = {'User-Agent': 'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
-# Active, suspended, or doesn't exist?
+futures = []
+
+#####
 account_response = requests.get(account_url, headers=headers, allow_redirects=False)
 status_code = account_response.status_code
 if status_code == 200:
-    print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE\n")
-    time.sleep(1)
+    print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE")
 elif status_code == 302:
-    print(Back.RED + Fore.WHITE + f"Account is SUSPENDED. This means all of {Back.WHITE + Fore.RED + username + Back.RED + Fore.WHITE}'s Tweets will be downloaded.\n")
-    time.sleep(3)
+    print(Back.RED + Fore.WHITE + f"Account is SUSPENDED. This means all of "
+          f"{Back.WHITE + Fore.RED + account_name + Back.RED + Fore.WHITE}'s Tweets will be "
+          f"downloaded.")
 else:
-    print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this handle's Tweets.\n")
-    time.sleep(4)
+    print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this "
+          f"handle's Tweets.")
+sleep(1)
+#####
 
-stuck = "(Don't worry, Twayback isn't stuck!"
-
-print(f"Please wait. Twayback is searching far and wide for deleted tweets from {username}.\nDrink some delicious coffee while this gets done.\n\n{Back.MAGENTA + stuck + Fore.WHITE}\nDepending on the number of Tweets, this step might take several minutes.)\n")
-
-print(f"Grabbing links for Tweets from the Wayback Machine...\n")
-
-# list of deleted tweet urls
-missing_tweet_list=[]
-wayback_screenshot = []
-# list of deleted tweet wayback machine urls
-wayback_url_list = []
-
-# build a url to take advantage of wayback machine cdx api
-wayback_cdx_url = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{username}/status&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={fromdate}&to={todate}"
-
-# grab results of cdx query
+wayback_cdx_url = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{account_name}/status" \
+                  f"&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={from_date}&to={to_date}"
 cdx_page_text = requests.get(wayback_cdx_url).text
 
-# Is Twitter handle excluded by the Wayback Machine?
-blocklist = []
-blocks = re.findall(r'Blocked', cdx_page_text)
-for block in blocks:
-    blocklist.append(f"{block}") 
-    if any("Blocked" in s for s in blocklist):
-        print(f"Sorry, no deleted Tweets can be retrieved for {username}.\nThis is because the Wayback Machine excludes Tweets for this handle.")
-        exit()
+if len(re.findall(r'Blocked', cdx_page_text)) != 0:
+    print(f"Sorry, no deleted Tweets can be retrieved for {account_name}.\n"
+          f"This is because the Wayback Machine excludes Tweets for this handle.")
+    sys.exit(-1)
 
+# Capitalization does not matter for twitter links. Url parameters after '?' do not matter either.
+tweet_id_and_url_dict = {line.split()[2].lower().split('?')[0]: line.split()[1] for line in cdx_page_text.splitlines()}
 
-r = re.compile(r"\b[0-9]{14}\b")
-# pull out wayback id number cdx query results
-wayback_id_list = r.findall(cdx_page_text)
-# extract the twitter url from api call above
-twitter_url_list = re.findall(r'https?://(?:www\.)?(?:mobile\.)?twitter\.com/(?:#!/)?\w+/status(?:es)?/\d+', cdx_page_text)
-
-
-number_of_elements = len(wayback_id_list)
+number_of_elements = len(tweet_id_and_url_dict)
 if number_of_elements >= 1000:
-    print(f"Getting the status codes of {number_of_elements} archived Tweets...\nThat's a lot of Tweets! It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
+    print(f"Getting the status codes of {number_of_elements} unique archived Tweets...\nThat's a lot of Tweets! "
+          f"It's gonna take some time.\nTip: You can use -from and -to to narrow your search between two dates.")
 else:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\n")
 
-###############################################################################
-# check twitter urls asyncronously and add the results to a list
-# broken out in to functions
-results_list = asyncio.run(asyncStarter(twitter_url_list))
- 
-#####################################################################################################
+with FuturesSession(max_workers=25) as session:
+    for twitter_url in tweet_id_and_url_dict:
+        futures.append(session.get(twitter_url, headers=headers, timeout=30, allow_redirects=False))
 
-# extract just the urls that gave a 404 upon checking
-for result in results_list:
-    if result[1] == 404:
-        missing_tweet_list.append(str(result[0]))
+missing_tweets = {}
 
-twitter_id_list = [] 
-# extract just the numeric portion of twitter urls that gave a 404 above
-for url in missing_tweet_list:
-    regex = re.search(r"\b(\d{12,19})\b", url)
-    if regex:
-        twitter_id_list.append(regex.group())
+for future in as_completed(futures):
+    # Cannot display progress or log stuff here, as this is done in other threads.
+    page_response = future.result()
+    if page_response.status_code == 404:
+        split_once = page_response.url.split('/status/')[-1]
+        split_fin = re.split(r'\D', split_once)[0]
+        missing_tweets[page_response.url] = split_fin
 
-# generate a tuple containing the wayback id and twitter url for just our missing tweets
-wayback_id_twitter_url = [(x, y) for x, y in zip(wayback_id_list, twitter_url_list) if y in missing_tweet_list]
-# generate list of full urls for use with wayback machine
-for number, url in wayback_id_twitter_url:
-    wayback_url_list.append(f"https://web.archive.org/web/{number}/{url}")
+wayback_url_list = {}
 
-# create a dictionary with wayback url as key and the numeric portion of twitter url as value
-fusion = dict(zip(wayback_url_list, twitter_id_list))
+for url, number in missing_tweets.items():
+    wayback_url_list[number] = f"https://web.archive.org/web/{number}/{url}"
 
-number_of_elements = len(fusion.keys())
+number_of_elements = len(wayback_url_list)
 
 if number_of_elements == 1:
-    answer = input(f"\n{number_of_elements} deleted Tweet has been found.\nWould you like to download the Tweet,\nget its text only, both, or take a screenshot?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
+    answer = input(f"\nOne deleted Tweet has been found.\nWould you like to download the Tweet,"
+                   f"\nget its text only, both, or take a screenshot?\nType 'download' or 'text' or 'both' or "
+                   f"'screenshot'. Then press Enter. \n")
 elif number_of_elements == 0:
     print(f"No deleted Tweets have been found.\nTry expanding the date range to check for more Tweets.\n")
     sys.exit()
 else:
-    answer = input(f"\nAbout {number_of_elements} deleted Tweets have been found\nWould you like to download the Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' or 'screenshot'. Then press Enter. \n")
+    answer = input(f"\nAbout {number_of_elements} deleted Tweets have been found\nWould you like to download the "
+                   f"Tweets, get their text only, both, or take screenshots?\nType 'download' or 'text' or 'both' "
+                   f"or 'screenshot'. Then press Enter. \n").lower()
 
 # Actual downloading occurs here
-if answer.lower() == 'download':
-    for url, number in tqdm(fusion.items(), position=0, leave=True):
-        while True:
-            try:
-                r = session.get(url, allow_redirects=False)
-                directory = pathlib.Path(username)
-                directory.mkdir(exist_ok=True)
-                with open(f"{username}/{number}.html", 'wb') as file:
-                    file.write(r.content)
-            except:
-                print("\n\nThere is a problem with the connection.\n")
-                time.sleep(0.5)
-                print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
-                time.sleep(1)
-                print("Retrying after 30 seconds...")
-                time.sleep(30)
-                continue
-            break
-    print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
-    time.sleep(1)
-    print(f"Have a great day! Thanks for using Twayback :)")
-elif answer.lower() == 'text':
-    textlist = []
-    textonly = []
-    for url in tqdm(wayback_url_list, position=0, leave=True):
-        response2 = session.get(url, allow_redirects=False).text
-        regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+
+deleted_tweets_futures = {}
+deleted_tweets_futures_retry = {}
+
+if answer == 'download':
+    directory = Path(account_name)
+    directory.mkdir(exist_ok=True)
+    dont_spam_user = False
+
+    with FuturesSession(max_workers=25) as session:
+        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+            deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
+
+    for completed_future_number, completed_future in tqdm(deleted_tweets_futures.items(), position=0, leave=True):
+        result = None
         try:
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-            textonly.append(tweet + "\n\n---")
+            result = completed_future.result()
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
+                file.write(result.content)
+        except:
+            if not dont_spam_user:
+                print("\n\nThere is a problem with the connection.\n")
+                sleep(0.5)
+                print("Either the Wayback Machine is down or it's refusing the requests.\n"
+                      "Your Wi-Fi connection may also be down.")
+                sleep(1)
+                print("Retrying...")
+                # Make sure that cascading failures don't spam text on the terminal.
+                dont_spam_user = True
+            if result is not None:
+                deleted_tweets_futures_retry[completed_future_number] = session.get(result.url,
+                                                                                    headers=headers, timeout=30)
+    for completed_future_number, completed_future in tqdm(deleted_tweets_futures_retry.items(),
+                                                          position=0, leave=True):
+        try:
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
+                file.write(completed_future.result().content)
+        except:
+            # Give up if the 2nd time around doesn't work.
+            continue
+
+    print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder "
+          f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
+
+elif answer == 'text':
+    directory = Path(account_name)
+    directory.mkdir(exist_ok=True)
+    futures_list = []
+    regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+
+    with FuturesSession(max_workers=25) as session:
+        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+            futures_list.append(session.get(url))
+    for future in as_completed(futures_list):
+        try:
+            result = future.result()
+            tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
+            with open(f"{account_name}/{account_name}_text.txt", 'a') as file:
+                file.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
         except AttributeError:
             pass
-    textlist = zip(missing_tweet_list, textonly)
-    directory = pathlib.Path(username)
+        except ConnectionError:
+            print('Connection error occurred while fetching tweet text!')
+
+    print(f"\nA text file ({account_name}_text.txt) is saved, which lists all URLs for the deleted Tweets and "
+          f"their text, has been saved.\nYou can find it inside the folder "
+          f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
+
+elif answer == 'both':
+    directory = Path(account_name)
     directory.mkdir(exist_ok=True)
-    with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
-        for text in textlist:
-            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
-    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nYou can find it inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
-    time.sleep(1)
-    print(f"Have a great day! Thanks for using Twayback :)")
-elif answer.lower() == 'both':
-    textlist = []
-    textonly = []
-    for url in tqdm(wayback_url_list, position=0, leave=True, desc="Parsing text..."):
-        response2 = session.get(url, allow_redirects=False).text
-        regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+    dont_spam_user = False
+    regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
+
+    with FuturesSession(max_workers=25) as session:
+        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+            deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
+
+    for completed_future_number, completed_future in tqdm(deleted_tweets_futures.items(), position=0, leave=True):
+        result = None
         try:
-            tweet = bs4.BeautifulSoup(response2, "lxml").find("p", {"class": regex}).getText()
-            textonly.append(tweet + "\n\n---")
+            result = completed_future.result()
+            tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
+            with open(f"{account_name}/{account_name}_text.txt", 'a') as file:
+                file.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
+
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
+                file.write(result.content)
         except AttributeError:
             pass
-    textlist = zip(missing_tweet_list, textonly)
-    directory = pathlib.Path(username)
-    directory.mkdir(exist_ok=True)
-    with open(f"{username}/{username}_text.txt", 'w', encoding='utf-8') as file:
-        for text in textlist:
-            file.writelines(str(text[0]) + " " + text[1] +"\n" + "\n")
-    print("Text file has been successfully saved!\nNow downloading pages.")
-    time.sleep(1)
-    for url, number in tqdm(fusion.items(), position=0, leave=True, desc="Downloading HTML pages..."):
-        while True:
-            try:
-                r = session.get(url, allow_redirects=False)
-                directory = pathlib.Path(username)
-                directory.mkdir(exist_ok=True)
-                with open(f"{username}/{number}.html", 'wb') as file:
-                    file.write(r.content)
-            except:
+        except Exception:
+            if not dont_spam_user:
                 print("\n\nThere is a problem with the connection.\n")
-                time.sleep(0.5)
-                print("Either the Wayback Machine is down or it's refusing the requests.\nYour Wi-Fi connection may also be down.")
-                time.sleep(1)
-                print("Retrying after 30 seconds...")
-                time.sleep(30)
-                continue
-            break
-    print("HTML pages have been successfully saved!")
-    time.sleep(2)
-    print(f"\nA text file ({username}_text.txt) is saved, which lists all URLs for the deleted Tweets and their text, has been saved.\nHTML pages have also been downloaded.\nYou can find everything inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
-    time.sleep(1)
-    print(f"Have a great day! Thanks for using Twayback :)")
-elif answer.lower() == "screenshot":
-    for url in missing_tweet_list:
+                sleep(0.5)
+                print("Either the Wayback Machine is down or it's refusing the requests.\n"
+                      "Your Wi-Fi connection may also be down.")
+                sleep(1)
+                print("Retrying...")
+                # Make sure that cascading failures don't spam text on the terminal.
+                dont_spam_user = True
+            if result is not None:
+                deleted_tweets_futures_retry[completed_future_number] = session.get(result.url,
+                                                                                    headers=headers, timeout=30)
+    for completed_future_number, completed_future in tqdm(deleted_tweets_futures_retry.items(),
+                                                          position=0, leave=True):
+        try:
+            result = completed_future.result()
+            tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
+            with open(f"{account_name}/{account_name}_text.txt", 'a', encoding='utf-8') as file:
+                file.write(str(result.url) + " " + tweet + "\n\n---\n\n")
+
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
+                file.write(result.content)
+        except AttributeError:
+            pass
+        except Exception:
+            # Give up if the 2nd time around doesn't work.
+            continue
+
+    print(f"\nAll Tweets have been successfully downloaded!\nThey can be found as HTML files inside the folder "
+          f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
+    print(f"\nA text file ({account_name}_text.txt) is saved, which lists all URLs for the deleted Tweets and "
+          f"their text, has been saved.\nYou can find it inside the folder "
+          f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
+elif answer == "screenshot":
+    wayback_screenshots = {}
+    screenshot_futures = []
+
+    directory = Path(account_name)
+    directory.mkdir(exist_ok=True)
+    for number, url in wayback_url_list.items():
+        # Gets the oldest version saved
         link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
-        response1 = requests.get(link, allow_redirects=False)
+        response1 = requests.get(link)
         jsonResponse = response1.json()
-        wayback_url_screenshot = (jsonResponse['archived_snapshots']['closest']['url'])
-        wayback_screenshot.append(wayback_url_screenshot)
-        wayback_screenshot= [g[:41] + 'if_' + g[41:] for g in wayback_screenshot]
+        wayback_url_screenshot = jsonResponse['url']
+        # Example:
+        # https://web.archive.org/web/20211108191302/https://accentusoft.com/
+        # We want it like this, to remove the Wayback snapshots header:
+        # https://web.archive.org/web/20211108191302if_/https://accentusoft.com/
+        wayback_url_screenshot_parts = wayback_url_screenshot.split('/')
+        wayback_url_screenshot_parts[4] += 'if_'
+        wayback_url_screenshot = '/'.join(wayback_url_screenshot_parts)
+        wayback_screenshots[number] = wayback_url_screenshot
     print('Taking screenshots...')
-    time.sleep(1)
+    sleep(1)
     print("This might take a long time depending on your Internet speed\nand number of Tweets to screenshot.")
-    for url, number in zip(wayback_screenshot, twitter_id_list):
-        directory = pathlib.Path(username)
-        directory.mkdir(exist_ok=True)
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--log-level=1')
-        chrome = webdriver.Chrome(options=options)
-        chrome.get(url)
-        image = chrome.find_element(By.XPATH, "//*[@id='permalink-overlay-dialog']/div[3]/div/div/div[1]")
-        for numbers in twitter_id_list:
-            image.screenshot(f"{username}/{number}.png")
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        context = browser.new_context(
+            viewport={'width': 1920, 'height': 1080},
+            user_agent='Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'
+        )
+        page = context.new_page()
+        for number, tweet_to_screenshot in tqdm(wayback_screenshots.items(), position=0):
+            page.goto(tweet_to_screenshot, wait_until='domcontentloaded', timeout=0)
+            page.locator('.TweetTextSize--jumbo').screenshot(
+                path=f"{account_name}/{number}.png")
+
+        context.close()
+        browser.close()
+
     print("Screenshots have been successfully saved!")
-    time.sleep(2)
-    print(f"\nYou can find screenshots inside the folder {Back.MAGENTA + Fore.WHITE + username + Back.BLACK + Fore.WHITE}.\n")
-    time.sleep(1)
-    print(f"Have a great day! Thanks for using Twayback :)")
-else:
-    sys.exit()
+    sleep(1)
+    print(f"\nYou can find screenshots inside the folder "
+          f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
+
+print(f"Have a great day! Thanks for using Twayback :)")
+
