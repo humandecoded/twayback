@@ -78,13 +78,9 @@ For more information, check out the [Usage](#usage) section above.
 ## Screenshots
 **(I'm aware that screenshots for pre-2016 Tweets aren't working. I'm currently trying my best to fix it, but I've been running into errors. As soon as I fix it, I will ship a version that works for all Tweets. Thanks for your patience!)**
 
-Screenshots are done using Selenium. To successfully take screenshots, please follow these steps:
- 1. Make sure you have Chrome installed.
-    - Firefox works, but you have to edit the script to replace Chrome with Firefox. Plus, Firefox isn't great with screenshots.
- 2. Note your Chrome version.
- 3. Go to [this page](https://chromedriver.chromium.org/downloads) and download the appropriate Chrome driver for your version of Chrome.
- 4. Place the Chrome driver in your Python installation directory, or add it to PATH.
-    - Add to PATH tutorials: [Windows](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), [Linux](https://itsfoss.com/add-directory-to-path-linux/), [macOS](https://www.architectryan.com/2012/10/02/add-to-the-path-on-mac-os-x-mountain-lion/).
+Screenshots are done using Playwright. To successfully take screenshots, please follow these steps:
+ 1. Open a terminal window.
+ 2. Run: `playwright install`.
 
 
 

@@ -71,14 +71,9 @@ Twayback est un portmanteau de *Twitter* et de *Wayback Machine*. Entrez votre n
 Pour plus d'informations, consultez la section [Usage](#usage) ci-dessus.
 
 ## Captures d'écran
-Les captures d'écran sont réalisées à l'aide de Selenium. Pour réussir à faire des captures d'écran, veuillez suivre les étapes suivantes :
-
- 1. Assurez-vous que vous avez installé Google Chrome.
-    - Firefox fonctionne, mais vous devez modifier le script pour remplacer Chrome par Firefox. De plus, Firefox n'est pas génial avec les captures d'écran.
- 2. Notez votre version de Chrome.
- 3. Allez sur [cette page] (https://chromedriver.chromium.org/downloads) et téléchargez le pilote Chrome approprié pour votre version de Chrome.
- 4. Placez le pilote Chrome dans votre répertoire d'installation Python ou ajoutez-le à PATH.
-    - Ajouter aux tutoriels PATH : [Windows](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), [Linux](https://itsfoss.com/add-directory-to-path-linux/), [macOS](https://www.architectryan.com/2012/10/02/add-to-the-path-on-mac-os-x-mountain-lion/).
+Les captures d'écran sont réalisées à l'aide de Playwright. Pour réussir à faire des captures d'écran, veuillez suivre les étapes suivantes :
+ 1. Ouvrir une fenêtre de terminal.
+ 2. Exécuter: `playwright install`.
 
 
 
