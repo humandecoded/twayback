@@ -156,7 +156,7 @@ if answer == 'download':
     directory.mkdir(exist_ok=True)
     dont_spam_user = False
 
-    with FuturesSession(max_workers=25) as session:
+    with FuturesSession(max_workers=5) as session:
         for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
 
@@ -197,7 +197,7 @@ elif answer == 'text':
     futures_list = []
     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
 
-    with FuturesSession(max_workers=25) as session:
+    with FuturesSession(max_workers=5) as session:
         for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             futures_list.append(session.get(url))
     for future in as_completed(futures_list):
@@ -221,7 +221,7 @@ elif answer == 'both':
     dont_spam_user = False
     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
 
-    with FuturesSession(max_workers=25) as session:
+    with FuturesSession(max_workers=5) as session:
         for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
 
