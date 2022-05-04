@@ -134,6 +134,14 @@ for url, number in zip(missing_tweet_list, wayback_id_list):
 
 number_of_elements = len(wayback_url_dict)
 
+
+# at the very least, create a csv with the info found so f
+directory = Path(account_name)
+directory.mkdir(exist_ok=True)
+with open(f"{account_name}/{account_name}.csv", "w") as f:
+    for x,y in zip (missing_tweet_list, wayback_url_dict.values()):
+        f.write(f'{x},{y}\n')
+
 if number_of_elements == 1:
     answer = input(f"\nOne deleted Tweet has been found.\nWould you like to download the Tweet,"
                    f"\nget its text only, both, or take a screenshot?\nType 'download' or 'text' or 'both' or "
