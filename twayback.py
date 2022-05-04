@@ -91,7 +91,6 @@ if len(re.findall(r'Blocked', cdx_page_text)) != 0:
           f"This is because the Wayback Machine excludes Tweets for this handle.")
     sys.exit(-1)
 
-print(wayback_cdx_url)
 # Capitalization does not matter for twitter links. Url parameters after '?' do not matter either.
 # create a dict of {twitter_url: wayback_id}
 tweet_id_and_url_dict = {line.split()[2].lower().split('?')[0]: line.split()[1] for line in cdx_page_text.splitlines()}
