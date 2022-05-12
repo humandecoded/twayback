@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import colorama
 import requests
 import platform
@@ -16,6 +14,36 @@ from tqdm import tqdm
 from time import sleep
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from aiohttp import ClientSession, TCPConnector
+import asyncio
+
+# checks the status of a given url
+async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore):
+    
+    async with sem:
+        async with session.get(url) as response:
+            return url, response.status
+        
+    
+# controls our async event loop
+async def asyncStarter(url_list):
+    # this will wrap our event loop and feed the the various urls to their async request function.
+    status_list = []
+    headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
+    
+    # using a with statement seems to be working out better
+    async with ClientSession(headers=headers) as a_session:
+        # limit to 50 concurrent jobs
+        sem = asyncio.Semaphore(50)
+        # launch all the url checks concurrently as coroutines 
+        # where is the session variable coming from??? is it the global one I defined above?
+        # function is expecting an async session?
+        status_list = await asyncio.gather(*(checkStatus(u, a_session, sem) for u in url_list))
+    # return a list of the results    
+    return status_list
+
+
+
 
 colorama.init(autoreset=True)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,7 +92,13 @@ if len(re.findall(r'Blocked', cdx_page_text)) != 0:
     sys.exit(-1)
 
 # Capitalization does not matter for twitter links. Url parameters after '?' do not matter either.
+# create a dict of {twitter_url: wayback_id}
 tweet_id_and_url_dict = {line.split()[2].lower().split('?')[0]: line.split()[1] for line in cdx_page_text.splitlines()}
+
+# create a list of just twitter urls
+twitter_url_list = []
+for url in tweet_id_and_url_dict:
+    twitter_url_list.append(url)
 
 number_of_elements = len(tweet_id_and_url_dict)
 if number_of_elements >= 1000:
@@ -73,26 +107,40 @@ if number_of_elements >= 1000:
 else:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\n")
 
-with FuturesSession(max_workers=25) as session:
-    for twitter_url in tweet_id_and_url_dict:
-        futures.append(session.get(twitter_url, headers=headers, timeout=30, allow_redirects=False))
+# break out url list in to chunks of 100 and check asyncronously
+results_list = []
+counter = 0
+for x in tqdm(range(0, len(twitter_url_list))):
+    if counter==100 or x == len(twitter_url_list)-1 :
+        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-100:x])))
+        counter = 0
+    counter += 1 
 
-missing_tweets = {}
+# list of just missing twitter url
+missing_tweet_list = []
+for result in results_list:
+    if result[1] == 404:
+        missing_tweet_list.append(str(result[0]))
 
-for future in as_completed(futures):
-    # Cannot display progress or log stuff here, as this is done in other threads.
-    page_response = future.result()
-    if page_response.status_code == 404:
-        split_once = page_response.url.split('/status/')[-1]
-        split_fin = re.split(r'\D', split_once)[0]
-        missing_tweets[page_response.url] = split_fin
+# list of wayback ids for just missing tweets
+wayback_id_list = []
+for url in missing_tweet_list:
+    wayback_id_list.append(tweet_id_and_url_dict[url])
 
-wayback_url_list = {}
 
-for url, number in missing_tweets.items():
-    wayback_url_list[number] = f"https://web.archive.org/web/{number}/{url}"
+wayback_url_dict = {}
+for url, number in zip(missing_tweet_list, wayback_id_list):
+    wayback_url_dict[number] = f"https://web.archive.org/web/{number}/{url}"
 
-number_of_elements = len(wayback_url_list)
+number_of_elements = len(wayback_url_dict)
+
+
+# at the very least, create a csv with the info found so f
+directory = Path(account_name)
+directory.mkdir(exist_ok=True)
+with open(f"{account_name}/{account_name}.csv", "w") as f:
+    for x,y in zip (missing_tweet_list, wayback_url_dict.values()):
+        f.write(f'{x},{y}\n')
 
 if number_of_elements == 1:
     answer = input(f"\nOne deleted Tweet has been found.\nWould you like to download the Tweet,"
@@ -116,16 +164,16 @@ if answer == 'download':
     directory.mkdir(exist_ok=True)
     dont_spam_user = False
 
-    with FuturesSession(max_workers=25) as session:
-        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+    with FuturesSession(max_workers=5) as session:
+        for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
 
     for completed_future_number, completed_future in tqdm(deleted_tweets_futures.items(), position=0, leave=True):
         result = None
         try:
             result = completed_future.result()
-            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
-                file.write(result.content)
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as f:
+                f.write(result.content)
         except:
             if not dont_spam_user:
                 print("\n\nThere is a problem with the connection.\n")
@@ -142,8 +190,8 @@ if answer == 'download':
     for completed_future_number, completed_future in tqdm(deleted_tweets_futures_retry.items(),
                                                           position=0, leave=True):
         try:
-            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
-                file.write(completed_future.result().content)
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as f:
+                f.write(completed_future.result().content)
         except:
             # Give up if the 2nd time around doesn't work.
             continue
@@ -157,15 +205,15 @@ elif answer == 'text':
     futures_list = []
     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
 
-    with FuturesSession(max_workers=25) as session:
-        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+    with FuturesSession(max_workers=5) as session:
+        for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             futures_list.append(session.get(url))
     for future in as_completed(futures_list):
         try:
             result = future.result()
             tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
-            with open(f"{account_name}/{account_name}_text.txt", 'a') as file:
-                file.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
+            with open(f"{account_name}/{account_name}_text.txt", 'a') as f:
+                f.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
         except AttributeError:
             pass
         except ConnectionError:
@@ -181,8 +229,8 @@ elif answer == 'both':
     dont_spam_user = False
     regex = re.compile('.*TweetTextSize TweetTextSize--jumbo.*')
 
-    with FuturesSession(max_workers=25) as session:
-        for number, url in tqdm(wayback_url_list.items(), position=0, leave=True):
+    with FuturesSession(max_workers=5) as session:
+        for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
             deleted_tweets_futures[number] = session.get(url, headers=headers, timeout=30)
 
     for completed_future_number, completed_future in tqdm(deleted_tweets_futures.items(), position=0, leave=True):
@@ -190,11 +238,11 @@ elif answer == 'both':
         try:
             result = completed_future.result()
             tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
-            with open(f"{account_name}/{account_name}_text.txt", 'a') as file:
-                file.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
+            with open(f"{account_name}/{account_name}_text.txt", 'a') as f:
+                f.write(str(result.url.split('/', 5)[:-1]) + " " + tweet + "\n\n---\n\n")
 
-            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
-                file.write(result.content)
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as f:
+                f.write(result.content)
         except AttributeError:
             pass
         except Exception:
@@ -215,11 +263,11 @@ elif answer == 'both':
         try:
             result = completed_future.result()
             tweet = bs4.BeautifulSoup(result.content, "lxml").find("p", {"class": regex}).getText()
-            with open(f"{account_name}/{account_name}_text.txt", 'a', encoding='utf-8') as file:
-                file.write(str(result.url) + " " + tweet + "\n\n---\n\n")
+            with open(f"{account_name}/{account_name}_text.txt", 'a', encoding='utf-8') as f:
+                f.write(str(result.url) + " " + tweet + "\n\n---\n\n")
 
-            with open(f"{account_name}/{completed_future_number}.html", 'wb') as file:
-                file.write(result.content)
+            with open(f"{account_name}/{completed_future_number}.html", 'wb') as f:
+                f.write(result.content)
         except AttributeError:
             pass
         except Exception:
@@ -237,7 +285,7 @@ elif answer == "screenshot":
 
     directory = Path(account_name)
     directory.mkdir(exist_ok=True)
-    for number, url in wayback_url_list.items():
+    for number, url in wayback_url_dict.items():
         # Gets the oldest version saved
         link = f"https://archive.org/wayback/available?url={url}&timestamp=19800101"
         response1 = requests.get(link)
@@ -275,4 +323,3 @@ elif answer == "screenshot":
           f"{Back.MAGENTA + Fore.WHITE + account_name + Back.BLACK + Fore.WHITE}.")
 
 print(f"Have a great day! Thanks for using Twayback :)")
-
