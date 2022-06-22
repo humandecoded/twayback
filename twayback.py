@@ -1,3 +1,4 @@
+from multiprocessing.dummy import Semaphore
 import colorama
 import requests
 import platform
@@ -26,7 +27,7 @@ async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore):
         
     
 # controls our async event loop
-async def asyncStarter(url_list):
+async def asyncStarter(url_list, semaphore_size):
     # this will wrap our event loop and feed the the various urls to their async request function.
     status_list = []
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
@@ -34,7 +35,7 @@ async def asyncStarter(url_list):
     # using a with statement seems to be working out better
     async with ClientSession(headers=headers) as a_session:
         # limit to 50 concurrent jobs
-        sem = asyncio.Semaphore(50)
+        sem = asyncio.Semaphore(semaphore_size)
         # launch all the url checks concurrently as coroutines 
         # where is the session variable coming from??? is it the global one I defined above?
         # function is expecting an async session?
@@ -55,10 +56,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--username', required=True, default='')
 parser.add_argument('-from', '--fromdate', required=False, default='')
 parser.add_argument('-to', '--todate', required=False, default='')
+parser.add_argument('--batch-size', type=int, required=False, default=100, help="How many urls to examine at once. Between 1 and 100")
+parser.add_argument('--semaphore-size', type=int, required=False, default=50, help="How many urls(from --batch-size) to query at once. Between 1 and 50")
+
 args = vars(parser.parse_args())
 account_name = args['username']
 from_date = args['fromdate']
 to_date = args['todate']
+batch_size = args['batch_size']
+semaphore_size = args['semaphore_size']
 remove_list = ['-', '/']
 from_date = from_date.translate({ord(x): None for x in remove_list})
 to_date = to_date.translate({ord(x): None for x in remove_list})
@@ -111,8 +117,8 @@ else:
 results_list = []
 counter = 0
 for x in tqdm(range(0, len(twitter_url_list))):
-    if counter==100 or x == len(twitter_url_list)-1 :
-        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-100:x])))
+    if counter==batch_size or x == len(twitter_url_list)-1 :
+        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size)))
         counter = 0
     counter += 1 
 
