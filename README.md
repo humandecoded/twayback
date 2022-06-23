@@ -23,11 +23,22 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  - Allows custom time range to narrow search for deleted Tweets archived between two dates.
  - Differentiates between accounts that are active, suspended, or don't/no longer exist.
  - Lets you know if a target handle's archived Tweets have been excluded from the Wayback Machine.
+ - Saves a log of the deleted tweet URLs in case you want to view on the Wayback Machine
 
 ## Usage
 >    twayback -u USERNAME [OPTIONS]
     
     -u, --username                                        Specify target user's Twitter handle
+
+    --batch-size                                          Specify how many URLs you would like to 
+                                                          examine at a time. Expecting an integer between
+                                                          1 and 100. A larger number will give you a speed
+                                                          boost but at the risk of errors. Default = 100
+
+    --semaphore-size                                      Specify how many urls from --batch-size you would 
+                                                          like to query asyncronously at once. Expecting an integer
+                                                          between 1 and 50. A larger number number will give you a speed
+                                                          boost but at the risk of errors. Default = 50
     
     -from, --fromdate                                     Narrow search for deleted Tweets *archived*
                                                           on and after this date
@@ -82,7 +93,8 @@ Screenshots are done using Playwright. To successfully take screenshots, please 
  1. Open a terminal window.
  2. Run: `playwright install`.
 
-
+## Troubleshooting
+The larger the number of tweets your query has the higher your chances of encountering errors during execution. The default speed settings for `--semaphore-size` and `--batch-size` are set to the fastest possible execution. Reduce these numbers to slow down your execution and reduce the chance of errors. 
 
 ## Things to keep in mind
  - Quality of the HTML files depends on how the Wayback Machine saved them. Some are better than others.
