@@ -76,12 +76,15 @@ futures = []
 #####
 account_response = requests.get(account_url, headers=headers, allow_redirects=False)
 status_code = account_response.status_code
+
 if status_code == 200:
     print(Back.GREEN + Fore.WHITE + f"Account is ACTIVE")
 elif status_code == 302:
     print(Back.RED + Fore.WHITE + f"Account is SUSPENDED. This means all of "
           f"{Back.WHITE + Fore.RED + account_name + Back.RED + Fore.WHITE}'s Tweets will be "
           f"downloaded.")
+elif status_code ==429:
+    print(Back.RED + Fore.WHITE + f"Respose Code 429: Too Many Requests. Your traffic to Twitter is being limited and results of this script will not be accurate")
 else:
     print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this "
           f"handle's Tweets.")
@@ -127,6 +130,8 @@ missing_tweet_list = []
 for result in results_list:
     if result[1] == 404:
         missing_tweet_list.append(str(result[0]))
+    if result[1] == 429:
+        print("Respose Code 429: Too Many Requests. Your traffic to Twitter is being limited and results of this script will not be accurate")
 
 # list of wayback ids for just missing tweets
 wayback_id_list = []
