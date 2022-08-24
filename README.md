@@ -82,6 +82,33 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  3. Open terminal in that directory.
  4. Run the command `pip install -r requirements.txt`.
  5. Run the command `twayback.py -u USERNAME` (Replace `USERNAME` with your target handle).
+ 
+ ### Additional information for macOS
+ - You can also install Twayback in the following way:
+ ```
+ git clone https://github.com/Mennaruuk/twayback
+ ``` 
+ 
+ - You can also use Python Virtualenv (Virtual Environment) in order to avoid conflicting packages | libs
+ 
+ ```
+ cd twayback
+ ```
+ 
+ ```
+ pip3 install -r requirements.txt
+ ```
+ depending on versions
+ ```
+ pip install -r requirements.txt
+ ```
+ 
+Run the command:
+```
+python3 twayback.py -u USERNAME
+
+```
+(Replace `USERNAME` with your target handle).
 
 
 For more information, check out the [Usage](#usage) section above.
