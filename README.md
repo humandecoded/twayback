@@ -10,7 +10,12 @@
   
 ![screenshot](https://i.imgur.com/oBeqt6V.png)
 
+# Looking for new maintainer
+
+**I know this repo has been needing some love. If anyone is interested in taking ownership of this repo, please contact me! Either [post a discussion](https://github.com/Mennaruuk/twayback/discussions/new) or email me at mennaruuk at protonmail dot com.**
+
 </div>
+
 
 Finding and downloading deleted Tweets takes a lot of time. Thankfully, with this tool, it becomes a piece of cake! 🎂
 
