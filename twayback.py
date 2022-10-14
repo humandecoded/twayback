@@ -73,8 +73,9 @@ batch_size = args['batch_size']
 semaphore_size = args['semaphore_size']
 
 proxy_file = args['proxy_file']
+proxy_server = ''
+proxy_list = []
 if proxy_file != '':
-    proxy_list = []
     with open(proxy_file, "r") as f:
         for x in f.readlines():
             proxy_list.append(x.split("\n")[0])
@@ -139,8 +140,11 @@ for x in tqdm(range(0, len(twitter_url_list))):
     if counter==batch_size or x == len(twitter_url_list)-1 :
         results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size, proxy_server)))
         counter = 0
-        proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)] 
-        print(f"New Proxy: {proxy_server}")
+        if proxy_list != []:
+            proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)] 
+            print(f"New Proxy: {proxy_server}")
+        else:
+            proxy_server = ''
     counter += 1
     
 
