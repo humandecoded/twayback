@@ -39,7 +39,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
     --semaphore-size                                      Specify how many urls from --batch-size you would 
                                                           like to query asyncronously at once. Expecting an integer
-                                                          between 1 and 50. A larger number number will give you a speed
+                                                          between 1 and 50. A larger number will give you a speed
                                                           boost but at the risk of errors. Default = 50
     
     -from, --fromdate                                     Narrow search for deleted Tweets *archived*
@@ -60,6 +60,11 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
                                                           Each line should contain one `url:port` to use
                                                           The script will pick a new proxy from the list at random after each --batch-size       
 
+    
+    Logs                                                  After checking a user's tweets but before you
+                                                          make a download selection, a folder will be created
+                                                          with that username. That folder will contain a log of:
+                                                          <deleted-twitter-url>:<deleted-wayback-url> in case you needed them
 
     Examples:
     twayback -u taylorswift13                             Downloads all of @taylorswift13's
@@ -79,6 +84,8 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
                                                           deleted Tweets *archived*
                                                           between August 30, 2020 to
                                                           September 15, 2020
+
+    
 
 #### Installation
  ```
