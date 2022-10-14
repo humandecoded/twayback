@@ -17,17 +17,22 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from aiohttp import ClientSession, TCPConnector
 import asyncio
+import random
 
 # checks the status of a given url
-async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore):
+async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore, proxy_server):
     
     async with sem:
-        async with session.get(url) as response:
-            return url, response.status
+        if proxy_server == '':
+            async with session.get(url) as response:
+                return url, response.status
+        else:
+            async with session.get(url, proxy = proxy_server) as response:
+                return url, response.status
         
     
 # controls our async event loop
-async def asyncStarter(url_list, semaphore_size):
+async def asyncStarter(url_list, semaphore_size, proxy_server):
     # this will wrap our event loop and feed the the various urls to their async request function.
     status_list = []
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
@@ -39,7 +44,7 @@ async def asyncStarter(url_list, semaphore_size):
         # launch all the url checks concurrently as coroutines 
         # where is the session variable coming from??? is it the global one I defined above?
         # function is expecting an async session?
-        status_list = await asyncio.gather(*(checkStatus(u, a_session, sem) for u in url_list))
+        status_list = await asyncio.gather(*(checkStatus(u, a_session, sem, proxy_server) for u in url_list))
     # return a list of the results    
     return status_list
 
@@ -56,15 +61,25 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--username', required=True, default='')
 parser.add_argument('-from', '--fromdate', required=False, default='')
 parser.add_argument('-to', '--todate', required=False, default='')
-parser.add_argument('--batch-size', type=int, required=False, default=100, help="How many urls to examine at once. Between 1 and 100")
+parser.add_argument('--batch-size', type=int, required=False, default=300, help="How many urls to examine at once. Between 1 and 100")
 parser.add_argument('--semaphore-size', type=int, required=False, default=50, help="How many urls(from --batch-size) to query at once. Between 1 and 50")
-
+parser.add_argument('--proxy-file', required=False, default='', help="A list of proxies the script will rotate through")
 args = vars(parser.parse_args())
+
 account_name = args['username']
 from_date = args['fromdate']
 to_date = args['todate']
 batch_size = args['batch_size']
 semaphore_size = args['semaphore_size']
+
+proxy_file = args['proxy_file']
+if proxy_file != '':
+    proxy_list = []
+    with open(proxy_file, "r") as f:
+        for x in f.readlines():
+            proxy_list.append(x.split("\n")[0])
+    proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)]
+
 remove_list = ['-', '/']
 from_date = from_date.translate({ord(x): None for x in remove_list})
 to_date = to_date.translate({ord(x): None for x in remove_list})
@@ -72,6 +87,7 @@ account_url = f"https://twitter.com/{account_name}"
 headers = {'User-Agent': 'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
 futures = []
+
 
 #####
 account_response = requests.get(account_url, headers=headers, allow_redirects=False)
@@ -121,9 +137,12 @@ results_list = []
 counter = 0
 for x in tqdm(range(0, len(twitter_url_list))):
     if counter==batch_size or x == len(twitter_url_list)-1 :
-        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size)))
+        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size, proxy_server)))
         counter = 0
-    counter += 1 
+        proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)] 
+        print(f"New Proxy: {proxy_server}")
+    counter += 1
+    
 
 # list of just missing twitter url
 missing_tweet_list = []
