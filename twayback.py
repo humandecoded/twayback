@@ -102,6 +102,7 @@ elif status_code == 302:
           f"downloaded.")
 elif status_code ==429:
     print(Back.RED + Fore.WHITE + f"Respose Code 429: Too Many Requests. Your traffic to Twitter is being limited and results of this script will not be accurate")
+    exit()
 else:
     print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this "
           f"handle's Tweets.")
@@ -147,14 +148,16 @@ for x in tqdm(range(0, len(twitter_url_list))):
             proxy_server = ''
     counter += 1
     
-
+missed_tweet_count = 0
 # list of just missing twitter url
 missing_tweet_list = []
 for result in results_list:
     if result[1] == 404:
         missing_tweet_list.append(str(result[0]))
     if result[1] == 429:
-        print("Respose Code 429: Too Many Requests. Your traffic to Twitter is being limited and results of this script will not be accurate")
+        missed_tweet_count += 1
+if missed_tweet_count > 0:
+    print(f"Skipped {missed_tweet_count} tweets due to 429 error. Reccomend using rotating proxy servers")
 
 # list of wayback ids for just missing tweets
 wayback_id_list = []
