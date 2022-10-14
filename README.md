@@ -10,9 +10,6 @@
   
 ![screenshot](https://i.imgur.com/oBeqt6V.png)
 
-# Looking for new maintainer
-
-**I know this repo has been needing some love. If anyone is interested in taking ownership of this repo, please contact me! Either [post a discussion](https://github.com/Mennaruuk/twayback/discussions/new) or email me at mennaruuk at protonmail dot com.**
 
 </div>
 
@@ -42,7 +39,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
     --semaphore-size                                      Specify how many urls from --batch-size you would 
                                                           like to query asyncronously at once. Expecting an integer
-                                                          between 1 and 50. A larger number number will give you a speed
+                                                          between 1 and 50. A larger number will give you a speed
                                                           boost but at the risk of errors. Default = 50
     
     -from, --fromdate                                     Narrow search for deleted Tweets *archived*
@@ -50,12 +47,25 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
                                                           (can be combined with -to)
                                                           (format YYYY-MM-DD or YYYY/MM/DD
                                                           or YYYYMMDD, doesn't matter)
+                                                          
                                             
     -to, --todate                                         Narrow search for deleted Tweets *archived*
                                                           on and before this date
                                                           (can be combined with -from)
                                                           (format YYYY-MM-DD or YYYY/MM/DD
                                                           or YYYYMMDD, doesn't matter)
+
+
+    --proxy-file                                          Provide a list of proxies to use. You'll need this for checking large groups of tweets
+                                                          Each line should contain one `url:port` to use
+                                                          The script will pick a new proxy from the list at random after each --batch-size       
+
+    
+    Logs                                                  After checking a user's tweets but before you
+                                                          make a download selection, a folder will be created
+                                                          with that username. That folder will contain a log of:
+                                                          <deleted-twitter-url>:<deleted-wayback-url> in case you needed them
+
     Examples:
     twayback -u taylorswift13                             Downloads all of @taylorswift13's
                                                           deleted Tweets
@@ -75,26 +85,12 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
                                                           between August 30, 2020 to
                                                           September 15, 2020
 
-## Installation
-### For Windows only
- 1. Download the latest EXE file.
- 2. Launch Command Prompt in the EXE file's directory.
- 3. Run the command `twayback -u USERNAME` (Replace `USERNAME` with your target handle).
+    
 
-### For Windows, Linux, and macOS
- 1. Download the latest Python script ZIP file.
- 2. Extract ZIP file to a directory of your choice.
- 3. Open terminal in that directory.
- 4. Run the command `pip install -r requirements.txt`.
- 5. Run the command `twayback.py -u USERNAME` (Replace `USERNAME` with your target handle).
- 
- ### Additional information for macOS
- - You can also install Twayback in the following way:
+#### Installation
  ```
  git clone https://github.com/Mennaruuk/twayback
  ``` 
- 
- - You can also use Python Virtualenv (Virtual Environment) in order to avoid conflicting packages | libs
  
  ```
  cd twayback
@@ -103,7 +99,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  ```
  pip3 install -r requirements.txt
  ```
- depending on versions
+ or possibly
  ```
  pip install -r requirements.txt
  ```
@@ -126,7 +122,8 @@ Screenshots are done using Playwright. To successfully take screenshots, please 
  2. Run: `playwright install`.
 
 ## Troubleshooting
-The larger the number of tweets your query has the higher your chances of encountering errors during execution. The default speed settings for `--semaphore-size` and `--batch-size` are set to the fastest possible execution. Reduce these numbers to slow down your execution and reduce the chance of errors. 
+The default speed settings for `--semaphore-size` and `--batch-size` are set to the fastest possible execution. Reduce these numbers to slow down your execution and reduce the chance of errors. 
+For checking large numbers of tweets (> than 800) you'll need to use web proxies and `--proxy-file` flag
 
 ## Things to keep in mind
  - Quality of the HTML files depends on how the Wayback Machine saved them. Some are better than others.
@@ -134,10 +131,4 @@ The larger the number of tweets your query has the higher your chances of encoun
  - By definition, if an account is suspended or no longer exists, all their Tweets would be considered deleted.
  - Custom date range is not about when Tweets were made, but rather when they were _archived_. For example, a Tweet from 2011 may have been archived today.
 
-## Call for help 🙏
-I welcome, and encourage, contributions! They make my day.
-What I can think of off the top of my head:
- - **Increasing download speed:** It'd be nice to increase the speed at which files are downloaded. `requests` takes me 5 seconds to download a file in kilobytes. There exist faster alternatives to requests, such as `pycURL`, `faster_than_requests`, and `urllib3`. I haven't gotten them to successfully work. I just want to use the faster library to download the HTML files and parse the text, it's okay if the rest is done with `requests`.
- -  **Code simplification/improvement**: If you're a pro at Python and know better ways to do what's in the script, please feel free to do so! If it works well, if not better, I will most likely merge it 😃
- - **Error Handling:** Set up error handling that would react to crashes. Potentially saving work as it goes and trying to restart from a certain point after a crash. For example: In a session if it crashed after checking the status of half of the URLs it would then restart itself and know to skip the URLs it has already checked this session.
- - **Use of Proxiese:** Build in ability for users to set up list of proxy IPs to rotate through if traffic is being blocked or limited
+
