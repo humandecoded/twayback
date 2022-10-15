@@ -32,11 +32,11 @@ async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore, proxy
         
     
 # controls our async event loop
-async def asyncStarter(url_list, semaphore_size, proxy_server):
+async def asyncStarter(url_list, semaphore_size, proxy_list):
     # this will wrap our event loop and feed the the various urls to their async request function.
     status_list = []
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
-    
+    proxy_server = chooseRandomProxy(proxy_list)
     # using a with statement seems to be working out better
     async with ClientSession(headers=headers) as a_session:
         # limit to 50 concurrent jobs
@@ -44,12 +44,29 @@ async def asyncStarter(url_list, semaphore_size, proxy_server):
         # launch all the url checks concurrently as coroutines 
         # where is the session variable coming from??? is it the global one I defined above?
         # function is expecting an async session?
-        status_list = await asyncio.gather(*(checkStatus(u, a_session, sem, proxy_server) for u in url_list))
-    # return a list of the results    
-    return status_list
 
+        # if aiohttp throws an error it will be caught and we'll try again up to 5 times
+        for x in range(0,5):
+            try:
+                status_list = await asyncio.gather(*(checkStatus(u, a_session, sem, proxy_server) for u in url_list))
+                break
+            except:
+                proxy_server = chooseRandomProxy(proxy_list)
+                print(f"Error. Trying a differ proxy: {proxy_server}")
+                status_list = []
+                
+    # return a list of the results 
+    if status_list != []:   
+        return status_list
+    else:
+        print("There was an error with aiohttp proxies. Please Try again")
+        exit()
 
-
+def chooseRandomProxy(proxy_list):
+    if proxy_list != []:
+        return "http://" + proxy_list[random.randint(0, len(proxy_list)-1)]
+    else:
+        return ''
 
 colorama.init(autoreset=True)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -61,7 +78,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--username', required=True, default='')
 parser.add_argument('-from', '--fromdate', required=False, default='')
 parser.add_argument('-to', '--todate', required=False, default='')
-parser.add_argument('--batch-size', type=int, required=False, default=300, help="How many urls to examine at once. Between 1 and 100")
+parser.add_argument('--batch-size', type=int, required=False, default=300, help="How many urls to examine at once.")
 parser.add_argument('--semaphore-size', type=int, required=False, default=50, help="How many urls(from --batch-size) to query at once. Between 1 and 50")
 parser.add_argument('--proxy-file', required=False, default='', help="A list of proxies the script will rotate through")
 args = vars(parser.parse_args())
@@ -73,13 +90,13 @@ batch_size = args['batch_size']
 semaphore_size = args['semaphore_size']
 
 proxy_file = args['proxy_file']
-proxy_server = ''
+
 proxy_list = []
 if proxy_file != '':
     with open(proxy_file, "r") as f:
         for x in f.readlines():
             proxy_list.append(x.split("\n")[0])
-    proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)]
+
 
 remove_list = ['-', '/']
 from_date = from_date.translate({ord(x): None for x in remove_list})
@@ -139,13 +156,8 @@ results_list = []
 counter = 0
 for x in tqdm(range(0, len(twitter_url_list))):
     if counter==batch_size or x == len(twitter_url_list)-1 :
-        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size, proxy_server)))
+        results_list.extend(asyncio.run(asyncStarter(twitter_url_list[x-batch_size:x], semaphore_size, proxy_list)))
         counter = 0
-        if proxy_list != []:
-            proxy_server = "http://" + proxy_list[random.randint(0, len(proxy_list)-1)] 
-            print(f"New Proxy: {proxy_server}")
-        else:
-            proxy_server = ''
     counter += 1
     
 missed_tweet_count = 0
