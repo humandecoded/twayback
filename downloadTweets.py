@@ -9,7 +9,6 @@ from playwright.sync_api import sync_playwright
 import re
 from concurrent.futures import as_completed
 
-
 def downloadOnly(account_name, wayback_url_dict):
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
     directory = Path(account_name)

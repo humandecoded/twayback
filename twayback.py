@@ -15,6 +15,7 @@ import asyncio
 import random
 import downloadTweets
 
+
 # checks the status of a given url
 async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore, proxy_server):
     
