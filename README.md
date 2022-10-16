@@ -1,18 +1,5 @@
 # Twayback: Downloading deleted Tweets from the Wayback Machine, made easy
 
-<div align="center">
-  
-
-[![windows](https://img.shields.io/badge/Download-EXE%20FILE-blue?style=for-the-badge&logo=Microsoft)](https://github.com/Mennaruuk/twayback/releases/download/03%2F09%2F2022/twayback.exe)
-[![python](https://img.shields.io/badge/Download-Python%20script-red?style=for-the-badge&logo=python)](https://github.com/Mennaruuk/twayback/releases/download/03%2F09%2F2022/twayback.zip)
-  
-[Lire en français](https://github.com/Mennaruuk/twayback/blob/88ceb554ac0d445172dd4f41197cbc4ca83d169c/fr_README.md)
-  
-![screenshot](https://i.imgur.com/oBeqt6V.png)
-
-
-</div>
-
 
 Finding and downloading deleted Tweets takes a lot of time. Thankfully, with this tool, it becomes a piece of cake! 🎂
 
@@ -25,7 +12,8 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  - Allows custom time range to narrow search for deleted Tweets archived between two dates.
  - Differentiates between accounts that are active, suspended, or don't/no longer exist.
  - Lets you know if a target handle's archived Tweets have been excluded from the Wayback Machine.
- - Saves a log of the deleted tweet URLs in case you want to view on the Wayback Machine
+ - Saves a log of the deleted tweet URLs in case you want to view on the Wayback Machine.
+ - Ability to rotate through a list of proxy servers to avoid 429 errors. 
 
 ## Usage
 >    twayback -u USERNAME [OPTIONS]
@@ -115,7 +103,6 @@ python3 twayback.py -u USERNAME
 For more information, check out the [Usage](#usage) section above.
 
 ## Screenshots
-**(I'm aware that screenshots for pre-2016 Tweets aren't working. I'm currently trying my best to fix it, but I've been running into errors. As soon as I fix it, I will ship a version that works for all Tweets. Thanks for your patience!)**
 
 Screenshots are done using Playwright. To successfully take screenshots, please follow these steps:
  1. Open a terminal window.
