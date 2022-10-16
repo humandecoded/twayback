@@ -13,7 +13,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
  - Differentiates between accounts that are active, suspended, or don't/no longer exist.
  - Lets you know if a target handle's archived Tweets have been excluded from the Wayback Machine.
  - Saves a log of the deleted tweet URLs in case you want to view on the Wayback Machine.
- - Ability to rotate through a list of proxy servers to avoid 429 errors. 
+ - Ability to rotate through a list of proxy servers to avoid 429 errors. **You will need to do this for data sets larger than about 800 tweets.**
 
 ## Usage
 >    twayback -u USERNAME [OPTIONS]
@@ -45,7 +45,7 @@ Twayback is a portmanteau of *Twitter* and the *Wayback Machine*. Enter your des
 
 
     --proxy-file                                          Provide a list of proxies to use. You'll need this for checking large groups of tweets
-                                                          Each line should contain one `url:port` to use
+                                                          Each line should contain one url:port to use
                                                           The script will pick a new proxy from the list at random after each --batch-size       
 
     
