@@ -1,4 +1,3 @@
-from multiprocessing.dummy import Semaphore
 import colorama
 import requests
 import platform
@@ -11,7 +10,7 @@ import urllib3
 from colorama import Fore, Back
 from tqdm import tqdm
 from time import sleep
-from aiohttp import ClientSession, TCPConnector
+from aiohttp import ClientSession
 import asyncio
 import random
 import downloadTweets
@@ -30,11 +29,12 @@ async def checkStatus(url, session: ClientSession, sem: asyncio.Semaphore, proxy
     
 # controls our async event loop
 async def asyncStarter(url_list, semaphore_size, proxy_list):
-    # this will wrap our event loop and feed the the various urls to their async request function.
+    
     status_list = []
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
     proxy_server = chooseRandomProxy(proxy_list)
     
+    # this will wrap our event loop and feed the the various urls to their async request function.
     async with ClientSession(headers=headers) as a_session:
         
         sem = asyncio.Semaphore(semaphore_size)
@@ -82,7 +82,6 @@ from_date = args['fromdate']
 to_date = args['todate']
 batch_size = args['batch_size']
 semaphore_size = args['semaphore_size']
-
 proxy_file = args['proxy_file']
 
 proxy_list = []
@@ -98,10 +97,7 @@ to_date = to_date.translate({ord(x): None for x in remove_list})
 account_url = f"https://twitter.com/{account_name}"
 headers = {'User-Agent': 'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
 
-futures = []
 
-
-#####
 account_response = requests.get(account_url, headers=headers, allow_redirects=False)
 status_code = account_response.status_code
 
@@ -118,7 +114,7 @@ else:
     print(Back.RED + Fore.WHITE + f"No one currently has this handle. Twayback will search for a history of this "
           f"handle's Tweets.")
 sleep(1)
-#####
+
 
 wayback_cdx_url = f"https://web.archive.org/cdx/search/cdx?url=twitter.com/{account_name}/status" \
                   f"&matchType=prefix&filter=statuscode:200&mimetype:text/html&from={from_date}&to={to_date}"
@@ -145,7 +141,7 @@ if number_of_elements >= 1000:
 else:
     print(f"Getting the status codes of {number_of_elements} archived Tweets...\n")
 
-# break out url list in to chunks of 100 and check asyncronously
+# break out url list in to chunks and check asyncronously
 results_list = []
 counter = 0
 for x in tqdm(range(0, len(twitter_url_list))):
@@ -163,7 +159,7 @@ for result in results_list:
     if result[1] == 429:
         missed_tweet_count += 1
 if missed_tweet_count > 0:
-    print(f"Skipped {missed_tweet_count} tweets due to 429 error. Reccomend using rotating proxy servers")
+    print(f"Skipped {missed_tweet_count} tweets due to 429 error. Recommend using rotating proxy servers")
 
 # list of wayback ids for just missing tweets
 wayback_id_list = []
@@ -178,7 +174,7 @@ for url, number in zip(missing_tweet_list, wayback_id_list):
 number_of_elements = len(wayback_url_dict)
 
 
-# at the very least, create a csv with the info found so f
+# at the very least, create a csv with the info found
 directory = Path(account_name)
 directory.mkdir(exist_ok=True)
 with open(f"{account_name}/{account_name}.csv", "w") as f:

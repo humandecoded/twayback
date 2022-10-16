@@ -9,15 +9,14 @@ from playwright.sync_api import sync_playwright
 import re
 from concurrent.futures import as_completed
 
-deleted_tweets_futures = {}
-deleted_tweets_futures_retry = {}
-
 
 def downloadOnly(account_name, wayback_url_dict):
     headers = {'user-agent':'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'}
     directory = Path(account_name)
     directory.mkdir(exist_ok=True)
     dont_spam_user = False
+    deleted_tweets_futures = {}
+    deleted_tweets_futures_retry = {}
 
     with FuturesSession(max_workers=5) as session:
         for number, url in tqdm(wayback_url_dict.items(), position=0, leave=True):
