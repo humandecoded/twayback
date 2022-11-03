@@ -199,7 +199,7 @@ else:
 if answer =="text":
     downloadTweets.textOnly(account_name, wayback_url_dict)
 elif answer =="download":
-    downloadTweets.download(account_name, wayback_url_dict)
+    downloadTweets.downloadOnly(account_name, wayback_url_dict)
 elif answer == "both":
     downloadTweets.textOnly(account_name, wayback_url_dict)
     downloadTweets.downloadOnly(account_name, wayback_url_dict)
