@@ -1,5 +1,6 @@
 # Twayback: Downloading deleted Tweets from the Wayback Machine, made easy
 
+# Sad News July 2023 - Due to recent changes to the Twitter platform, this tool is unable to work as intended. Login is required to even view tweets not to mention the rate limiting. I'll leave this repo up in case anyone wants to learn from it but I likely will not be updating the tool. Thank you to everyone that contributed and found some utility in this project.
 
 Finding and downloading deleted Tweets takes a lot of time. Thankfully, with this tool, it becomes a piece of cake! 🎂
 
